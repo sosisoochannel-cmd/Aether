@@ -39,6 +39,7 @@ public sealed class AetherUIReveal : MonoBehaviour
         finalScale = rect.localScale;
         configured = true;
         IsComplete = false;
+        graphic.raycastTarget = isButtonGraphic;
 
         if (!MotionEnabled)
         {
@@ -50,7 +51,6 @@ public sealed class AetherUIReveal : MonoBehaviour
             return;
         }
 
-        graphic.raycastTarget = false;
         Color hidden = finalColor;
         hidden.a = 0f;
         graphic.color = hidden;
