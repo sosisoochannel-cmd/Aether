@@ -41,6 +41,15 @@ if bootstrap.exists():
     source = bootstrap.read_text(encoding="utf-8")
     if "eventSystemObject" in source and "if (FindObjectOfType<EventSystem>() == null)\\n            var eventSystemObject" in source:
         errors.append("Malformed unbraced EventSystem initialization")
+    for contract in ("AnimateLogoReveal", "SoftGlintSprite", "PlayLogoGlint", "Screen.safeArea"):
+        if contract not in source:
+            errors.append(f"Bootstrap missing presentation/safe-area contract: {contract}")
+    if 'MakeButton("ادامه"' in source:
+        errors.append("Warning screen must remain minimal and auto-dismiss without a visible continue button")
+    if "ذخیره‌های نسخه‌های آزمایشی" not in source:
+        errors.append("Warning screen is missing its save-compatibility notice")
+    if "WaitForSecondsRealtime(7f)" not in source:
+        errors.append("Warning screen must have a non-blocking automatic transition")
 
 # Enforce key touch-control contracts and normalized hitbox separation.
 touch_file = root / "Assets/Aether/Scripts/Runtime/TouchHoldButton.cs"
