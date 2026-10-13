@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using System.Collections;
+using Aether.Gameplay.Menus;
 
 /// <summary>Builds the first playable graybox slice; production art and verified RTL fonts are separate milestones.</summary>
 [DisallowMultipleComponent]
@@ -13,6 +14,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private static readonly Color Muted = new Color(0.68f, 0.66f, 0.61f);
     private Canvas canvas;
     private Font font;
+    private Font rtlFont;
     private GameObject worldRoot;
     private static Sprite cachedWhiteSprite;
     private bool warningVisible;
@@ -23,6 +25,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         Application.targetFrameRate = 60;
         QualitySettings.vSyncCount = 0;
         font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        rtlFont = Resources.Load<Font>("Fonts/Vazirmatn-Regular");
         EnsureCamera();
         BuildCanvas();
         ShowStudioIntro();
@@ -154,7 +157,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         Panel("MenuBackdrop", Ink, Vector2.zero, Vector2.one);
         Label("V A R E L L O N", 23, Muted, new Vector2(0.5f, 0.82f), new Vector2(0.7f, 0.07f), TextAnchor.MiddleCenter);
         Label("AETHER", 92, Gold, new Vector2(0.5f, 0.62f), new Vector2(0.8f, 0.18f), TextAnchor.MiddleCenter);
-        Label("THE FIRST PLAYABLE SLICE", 20, Muted, new Vector2(0.5f, 0.51f), new Vector2(0.7f, 0.06f), TextAnchor.MiddleCenter);
+        Label("مسیر سبز — منطقهٔ یک", 24, Muted, new Vector2(0.5f, 0.51f), new Vector2(0.7f, 0.06f), TextAnchor.MiddleCenter);
         MakeButton("شروع بازی", new Vector2(0.5f, 0.35f), new Vector2(0.27f, 0.09f), StartGame, true);
         MakeButton("بازگشت به هشدار", new Vector2(0.5f, 0.22f), new Vector2(0.27f, 0.075f), ShowWarning, false);
     }
@@ -182,12 +185,12 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private void BuildGameplayUI()
     {
         Panel("GameplayHUD", new Color(0f, 0f, 0f, 0.15f), Vector2.zero, Vector2.one);
-        Label("AETHER  /  GREENWAY TEST", 19, Gold, new Vector2(0.5f, 0.94f), new Vector2(0.7f, 0.06f), TextAnchor.MiddleCenter);
-        Label("MOVE  •  JUMP  •  EXPLORE", 18, Muted, new Vector2(0.5f, 0.88f), new Vector2(0.7f, 0.05f), TextAnchor.MiddleCenter);
+        Label("AETHER  /  آزمایش منطقهٔ سبز", 19, Gold, new Vector2(0.5f, 0.94f), new Vector2(0.7f, 0.06f), TextAnchor.MiddleCenter);
+        Label("حرکت  •  پرش  •  کاوش", 18, Muted, new Vector2(0.5f, 0.88f), new Vector2(0.7f, 0.05f), TextAnchor.MiddleCenter);
         MakeTouchButton("◀", new Vector2(0.09f, 0.16f), new Vector2(0.105f, 0.16f), TouchHoldButton.Action.Left);
         MakeTouchButton("▶", new Vector2(0.215f, 0.16f), new Vector2(0.105f, 0.16f), TouchHoldButton.Action.Right);
-        MakeTouchButton("JUMP", new Vector2(0.89f, 0.17f), new Vector2(0.14f, 0.19f), TouchHoldButton.Action.Jump);
-        MakeButton("MENU", new Vector2(0.94f, 0.92f), new Vector2(0.08f, 0.07f), ReturnToMenu, false);
+        MakeTouchButton("پرش", new Vector2(0.89f, 0.17f), new Vector2(0.14f, 0.19f), TouchHoldButton.Action.Jump);
+        MakeButton("منو", new Vector2(0.94f, 0.92f), new Vector2(0.08f, 0.07f), ReturnToMenu, false);
     }
 
     private void ReturnToMenu()
@@ -248,7 +251,10 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         rect.anchorMax = center + dimensions * 0.5f;
         rect.offsetMin = Vector2.zero; rect.offsetMax = Vector2.zero;
         var text = go.GetComponent<Text>();
-        text.text = value; text.font = font; text.fontSize = size; text.color = color; text.raycastTarget = false;
+        bool isRtl = ContainsRtl(value);
+        text.text = PrepareText(value);
+        text.font = isRtl && rtlFont != null ? rtlFont : font;
+        text.fontSize = size; text.color = color; text.raycastTarget = false;
         text.alignment = alignment; text.horizontalOverflow = HorizontalWrapMode.Wrap;
         text.verticalOverflow = VerticalWrapMode.Overflow;
         return text;
@@ -283,6 +289,21 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         touch.Configure(action);
         var label = Label(title, title == "JUMP" ? 24 : 42, Gold, center, dimensions * 0.9f, TextAnchor.MiddleCenter);
         label.transform.SetAsLastSibling();
+    }
+
+    private static string PrepareText(string value)
+    {
+        if (string.IsNullOrEmpty(value) || !ContainsRtl(value)) return value;
+        string[] lines = value.Split('\n');
+        for (int i = 0; i < lines.Length; i++) lines[i] = RtlText.Visualize(lines[i]);
+        return string.Join("\n", lines);
+    }
+
+    private static bool ContainsRtl(string value)
+    {
+        for (int i = 0; i < value.Length; i++)
+            if ((value[i] >= '\u0590' && value[i] <= '\u08FF') || (value[i] >= '\uFB1D' && value[i] <= '\uFEFC')) return true;
+        return false;
     }
 
     private void OnApplicationFocus(bool hasFocus)
