@@ -15,6 +15,8 @@ required = [
     "Assets/Aether/Scripts/Runtime/AetherMenuAtmosphere.cs.meta",
     "Assets/Aether/Scripts/Runtime/AetherUIReveal.cs",
     "Assets/Aether/Scripts/Runtime/AetherUIReveal.cs.meta",
+    "Assets/Aether/Scripts/Runtime/AetherUIButtonFeedback.cs",
+    "Assets/Aether/Scripts/Runtime/AetherUIButtonFeedback.cs.meta",
     "Assets/Aether/Scripts/Runtime/TouchHoldButton.cs",
     "Assets/Aether/Scripts/Runtime/PrototypePlayerMotor.cs",
     "Assets/Aether/Editor/AetherProjectSetup.cs",
@@ -79,6 +81,13 @@ if reveal_file.exists():
     for contract in ("WaitForSecondsRealtime", "Time.unscaledDeltaTime", "button.interactable = false", "button.interactable = true"):
         if contract not in reveal_source:
             errors.append(f"UI entrance animation missing contract: {contract}")
+
+feedback_file = root / "Assets/Aether/Scripts/Runtime/AetherUIButtonFeedback.cs"
+if feedback_file.exists():
+    feedback_source = feedback_file.read_text(encoding="utf-8")
+    for contract in ("IPointerDownHandler", "IPointerUpHandler", "HashSet<int>", "Mathf.Exp", "IsComplete"):
+        if contract not in feedback_source:
+            errors.append(f"Button press feedback missing contract: {contract}")
 
 plate_file = root / "Assets/Aether/Scripts/Runtime/AetherParallelogramGraphic.cs"
 if plate_file.exists():
