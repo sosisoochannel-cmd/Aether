@@ -77,9 +77,10 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         ApplySafeArea();
 
         EventSystem eventSystem = FindObjectOfType<EventSystem>();
+        bool needsDefaultActions = eventSystem == null;
         if (eventSystem == null)
         {
-            var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+            var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem));
             eventSystem = eventSystemObject.GetComponent<EventSystem>();
         }
 
@@ -87,8 +88,13 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         if (inputModule == null)
         {
             inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
-            inputModule.AssignDefaultActions();
+            needsDefaultActions = true;
         }
+
+        // A newly created Input System UI module does not automatically guarantee
+        // populated pointer/click action references. Initialize only new modules so
+        // preconfigured EventSystems retain their chosen bindings.
+        if (needsDefaultActions) inputModule.AssignDefaultActions();
     }
 
 
