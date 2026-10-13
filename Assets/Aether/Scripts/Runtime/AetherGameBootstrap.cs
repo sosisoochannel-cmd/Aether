@@ -281,15 +281,24 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 
     private void BuildMenuAtmosphere()
     {
-        var go = new GameObject("Menu Atmosphere", typeof(RectTransform), typeof(AetherMenuAtmosphere));
-        go.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
+        // A nested Canvas isolates the frequently refreshed atmosphere mesh from
+        // the mostly static title, labels, and buttons on the main UI Canvas.
+        var go = new GameObject("Menu Atmosphere", typeof(RectTransform), typeof(Canvas), typeof(AetherMenuAtmosphere));
+        go.transform.SetParent(canvas.transform, false);
         var rect = go.GetComponent<RectTransform>();
         rect.anchorMin = Vector2.zero;
         rect.anchorMax = Vector2.one;
         rect.offsetMin = Vector2.zero;
         rect.offsetMax = Vector2.zero;
+        var atmosphereCanvas = go.GetComponent<Canvas>();
+        atmosphereCanvas.overrideSorting = false;
         go.GetComponent<AetherMenuAtmosphere>().SetAllDirty();
-        go.transform.SetAsFirstSibling();
+        // Draw above the opaque backdrop but behind the safe-area content.
+        if (safeAreaRoot != null)
+        {
+            go.transform.SetSiblingIndex(Mathf.Max(0, canvas.transform.childCount - 2));
+            safeAreaRoot.SetAsLastSibling();
+        }
     }
 
     private void ShowControls()
