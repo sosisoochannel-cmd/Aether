@@ -16,6 +16,8 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private RectTransform safeAreaRoot;
     private int lastScreenWidth;
     private int lastScreenHeight;
+    private Rect lastSafeArea;
+    private bool hasSafeArea;
     private Font font;
     private Font rtlFont;
     private GameObject worldRoot;
@@ -27,7 +29,8 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         Screen.orientation = ScreenOrientation.LandscapeLeft;
         Application.targetFrameRate = 60;
         QualitySettings.vSyncCount = 0;
-        font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        if (font == null) font = Resources.GetBuiltinResource<Font>("Arial.ttf");
         rtlFont = Resources.Load<Font>("Fonts/Vazirmatn-Regular");
         EnsureCamera();
         BuildCanvas();
@@ -82,7 +85,8 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight)
+        Rect currentSafeArea = Screen.safeArea;
+        if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight || !hasSafeArea || currentSafeArea != lastSafeArea)
             ApplySafeArea();
     }
 
@@ -96,6 +100,8 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         safeAreaRoot.offsetMax = Vector2.zero;
         lastScreenWidth = Screen.width;
         lastScreenHeight = Screen.height;
+        lastSafeArea = safe;
+        hasSafeArea = true;
     }
 
     private void ShowStudioIntro()
