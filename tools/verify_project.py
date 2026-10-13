@@ -61,27 +61,31 @@ if bootstrap.exists():
         errors.append("Warning screen must have a non-blocking automatic transition")
     if "button.targetGraphic = plate" not in source:
         errors.append("Menu buttons must use the shaped menu plate as their raycast target")
-    for contract in ("BuildMenuAtmosphere", "ShowControls", "ShowAbout", "ShowMenuInfoScreen", "FontStyle.Bold", "Mathf.Clamp01(color.a)", "RevealMenuElement", "menuEntrancePlayed"):
+    for contract in ("BuildMenuAtmosphere", "ShowControls", "ShowAbout", "ShowSettings", "ToggleMenuMotion", "ToggleTextSize", "ApplyMenuPreferences", "PlayerPrefs.Save()", "FontStyle.Bold", "Mathf.Clamp01(color.a)", "RevealMenuElement", "menuEntrancePlayed"):
         if contract not in source:
             errors.append(f"Main menu quality contract missing: {contract}")
     if 'MakeButton("بازگشت به هشدار"' in source:
         errors.append("Main menu must not expose the old return-to-warning placeholder action")
     if "text.color = new Color(1f, 1f, 1f," not in source:
         errors.append("All UI text must use white with opacity as its hierarchy signal")
+    if "text.fontStyle = FontStyle.Bold" not in source:
+        errors.append("Runtime text should use bold weight for the current menu typography direction")
+    if "typeof(Canvas), typeof(AetherMenuAtmosphere)" not in source or "go.transform.SetParent(canvas.transform, false)" not in source:
+        errors.append("Full-bleed atmosphere should live on an isolated child Canvas, not inside safe-area content")
     if "\\\\n" in source:
         errors.append("Unexpected doubled newline escape in UI source; it would print literal \\n")
 
 atmosphere_file = root / "Assets/Aether/Scripts/Runtime/AetherMenuAtmosphere.cs"
 if atmosphere_file.exists():
     atmosphere_source = atmosphere_file.read_text(encoding="utf-8")
-    for contract in ("SetVerticesDirty", "Time.unscaledTime", "AddEllipseArc", "DrawMotes", "DrawMountainLayer", "DrawRiftCore"):
+    for contract in ("SetVerticesDirty", "Time.unscaledTime", "AddEllipseArc", "DrawMotes", "DrawMountainLayer", "DrawRiftCore", "MotionEnabled"):
         if contract not in atmosphere_source:
             errors.append(f"Animated menu atmosphere missing contract: {contract}")
 
 reveal_file = root / "Assets/Aether/Scripts/Runtime/AetherUIReveal.cs"
 if reveal_file.exists():
     reveal_source = reveal_file.read_text(encoding="utf-8")
-    for contract in ("WaitForSecondsRealtime", "Time.unscaledDeltaTime", "IsComplete", "graphic.raycastTarget"):
+    for contract in ("WaitForSecondsRealtime", "Time.unscaledDeltaTime", "IsComplete", "graphic.raycastTarget", "MotionEnabled", "isButtonGraphic"):
         if contract not in reveal_source:
             errors.append(f"UI entrance animation missing contract: {contract}")
     if "button.interactable = false" in reveal_source or "button.interactable = true" in reveal_source:
@@ -90,7 +94,7 @@ if reveal_file.exists():
 feedback_file = root / "Assets/Aether/Scripts/Runtime/AetherUIButtonFeedback.cs"
 if feedback_file.exists():
     feedback_source = feedback_file.read_text(encoding="utf-8")
-    for contract in ("IPointerDownHandler", "IPointerUpHandler", "HashSet<int>", "Mathf.Exp", "IsComplete"):
+    for contract in ("IPointerDownHandler", "IPointerUpHandler", "HashSet<int>", "Mathf.Exp", "IsComplete", "MotionEnabled"):
         if contract not in feedback_source:
             errors.append(f"Button press feedback missing contract: {contract}")
 
