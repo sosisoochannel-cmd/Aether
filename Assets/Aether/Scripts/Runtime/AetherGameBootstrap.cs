@@ -462,6 +462,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         colors.pressedColor = new Color(0.86f, 0.79f, 0.60f, 0.76f);
         button.colors = colors;
         button.onClick.AddListener(action);
+        go.AddComponent<AetherUIButtonFeedback>();
         RevealMenuElement(go);
         var label = Label(title, primary ? 27 : 22, primary ? Color.white : Muted,
             center, dimensions * 0.92f, TextAnchor.MiddleCenter);
