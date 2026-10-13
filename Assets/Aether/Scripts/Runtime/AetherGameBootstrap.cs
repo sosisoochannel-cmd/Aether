@@ -282,9 +282,9 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             new Vector2(0.245f, 0.555f), new Vector2(0.46f, 0.075f), TextAnchor.MiddleRight);
         MakeButton("شروع بازی", new Vector2(0.22f, 0.405f),
             new Vector2(0.30f, 0.095f), StartGame, true);
-        MakeButton("کنترل‌ها", new Vector2(0.135f, 0.275f),
-            new Vector2(0.19f, 0.075f), ShowControls, false);
-        MakeButton("دربارهٔ بازی", new Vector2(0.345f, 0.275f),
+        MakeButton("کنترل‌ها", new Vector2(0.125f, 0.275f),
+            new Vector2(0.18f, 0.075f), ShowControls, false);
+        MakeButton("دربارهٔ بازی", new Vector2(0.36f, 0.275f),
             new Vector2(0.22f, 0.075f), ShowAbout, false);
         MakeButton("تنظیمات", new Vector2(0.22f, 0.16f),
             new Vector2(0.30f, 0.072f), ShowSettings, false);
