@@ -50,7 +50,7 @@ if bootstrap.exists():
     source = bootstrap.read_text(encoding="utf-8")
     if "eventSystemObject" in source and "if (FindObjectOfType<EventSystem>() == null)\\n            var eventSystemObject" in source:
         errors.append("Malformed unbraced EventSystem initialization")
-    for contract in ("AnimateLogoReveal", "SoftGlintSprite", "PlayLogoGlint", "Screen.safeArea"):
+    for contract in ("AnimateLogoReveal", "SoftGlintSprite", "PlayLogoGlint", "Screen.safeArea", "needsDefaultActions", "AssignDefaultActions"):
         if contract not in source:
             errors.append(f"Bootstrap missing presentation/safe-area contract: {contract}")
     if 'MakeButton("ادامه"' in source:
