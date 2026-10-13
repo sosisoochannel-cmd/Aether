@@ -10,6 +10,7 @@
 - Controls visibly respond to press state without bright opaque fills.
 - Touch state resets when the app loses focus or pauses, preventing stuck movement after notifications/app switching.
 - Canvas scales from a 1920x1080 landscape reference layout; controls use normalized anchors and explicit separated rectangles.
+- UI content is inset to the device's live `Screen.safeArea`; backgrounds remain full-bleed. Safe-area anchors refresh if the display dimensions change.
 
 ## Current normalized control bounds
 Coordinates are normalized to screen width/height (0..1).

@@ -13,6 +13,9 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private static readonly Color Gold = new Color(0.86f, 0.67f, 0.29f);
     private static readonly Color Muted = new Color(0.68f, 0.66f, 0.61f);
     private Canvas canvas;
+    private RectTransform safeAreaRoot;
+    private int lastScreenWidth;
+    private int lastScreenHeight;
     private Font font;
     private Font rtlFont;
     private GameObject worldRoot;
@@ -55,6 +58,12 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.matchWidthOrHeight = 0.5f;
+
+        var safeAreaObject = new GameObject("Safe Area Content", typeof(RectTransform));
+        safeAreaRoot = safeAreaObject.GetComponent<RectTransform>();
+        safeAreaRoot.SetParent(canvas.transform, false);
+        ApplySafeArea();
+
         EventSystem eventSystem = FindObjectOfType<EventSystem>();
         if (eventSystem == null)
         {
@@ -70,6 +79,24 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         }
     }
 
+
+    private void LateUpdate()
+    {
+        if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight)
+            ApplySafeArea();
+    }
+
+    private void ApplySafeArea()
+    {
+        if (safeAreaRoot == null || Screen.width <= 0 || Screen.height <= 0) return;
+        Rect safe = Screen.safeArea;
+        safeAreaRoot.anchorMin = new Vector2(safe.xMin / Screen.width, safe.yMin / Screen.height);
+        safeAreaRoot.anchorMax = new Vector2(safe.xMax / Screen.width, safe.yMax / Screen.height);
+        safeAreaRoot.offsetMin = Vector2.zero;
+        safeAreaRoot.offsetMax = Vector2.zero;
+        lastScreenWidth = Screen.width;
+        lastScreenHeight = Screen.height;
+    }
 
     private void ShowStudioIntro()
     {
@@ -263,7 +290,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private void MakeButton(string title, Vector2 center, Vector2 dimensions, UnityEngine.Events.UnityAction action, bool primary)
     {
         var go = new GameObject("Button: " + title, typeof(RectTransform), typeof(Image), typeof(Button));
-        go.transform.SetParent(canvas.transform, false);
+        go.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
         var rect = go.GetComponent<RectTransform>();
         rect.anchorMin = center - dimensions * 0.5f; rect.anchorMax = center + dimensions * 0.5f;
         rect.offsetMin = Vector2.zero; rect.offsetMax = Vector2.zero;
@@ -280,7 +307,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private void MakeTouchButton(string title, Vector2 center, Vector2 dimensions, TouchHoldButton.Action action)
     {
         var go = new GameObject("Touch: " + title, typeof(RectTransform), typeof(Image), typeof(TouchHoldButton));
-        go.transform.SetParent(canvas.transform, false);
+        go.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
         var rect = go.GetComponent<RectTransform>();
         rect.anchorMin = center - dimensions * 0.5f; rect.anchorMax = center + dimensions * 0.5f;
         rect.offsetMin = Vector2.zero; rect.offsetMax = Vector2.zero;
@@ -320,6 +347,16 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     {
         if (canvas == null) return;
         for (int i = canvas.transform.childCount - 1; i >= 0; i--)
-            Destroy(canvas.transform.GetChild(i).gameObject);
+        {
+            Transform child = canvas.transform.GetChild(i);
+            if (safeAreaRoot != null && child == safeAreaRoot) continue;
+            Destroy(child.gameObject);
+        }
+        if (safeAreaRoot != null)
+        {
+            for (int i = safeAreaRoot.childCount - 1; i >= 0; i--)
+                Destroy(safeAreaRoot.GetChild(i).gameObject);
+            safeAreaRoot.SetAsLastSibling();
+        }
     }
 }
