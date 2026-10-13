@@ -14,6 +14,8 @@ required = [
     "Assets/Aether/Editor/AetherProjectSetup.cs",
     "docs/ARCHITECTURE.md",
     "docs/TOUCH_CONTROLS.md",
+    "Assets/Aether/Resources/Fonts/Vazirmatn-Regular.ttf",
+    "Assets/Aether/Scripts/Runtime/RtlText.cs",
 ]
 errors = []
 for item in required:
@@ -40,6 +42,39 @@ if bootstrap.exists():
     if "eventSystemObject" in source and "if (FindObjectOfType<EventSystem>() == null)\\n            var eventSystemObject" in source:
         errors.append("Malformed unbraced EventSystem initialization")
 
+# Enforce key touch-control contracts and normalized hitbox separation.
+touch_file = root / "Assets/Aether/Scripts/Runtime/TouchHoldButton.cs"
+if touch_file.exists():
+    touch_source = touch_file.read_text(encoding="utf-8")
+    for contract in ("IPointerDownHandler", "IPointerUpHandler", "activePointers", "ResetAll"):
+        if contract not in touch_source:
+            errors.append(f"Touch control missing contract: {contract}")
+
+motor_file = root / "Assets/Aether/Scripts/Runtime/PrototypePlayerMotor.cs"
+if motor_file.exists():
+    motor_source = motor_file.read_text(encoding="utf-8")
+    for contract in ("coyoteTime", "jumpBufferTime", "groundAcceleration", "airAcceleration", "fallGravityMultiplier"):
+        if contract not in motor_source:
+            errors.append(f"Movement controller missing mechanic: {contract}")
+
+# Normalized rectangles must remain disjoint so neighboring controls cannot steal touches.
+rectangles = {
+    "left": (0.09 - 0.105 / 2, 0.16 - 0.16 / 2, 0.09 + 0.105 / 2, 0.16 + 0.16 / 2),
+    "right": (0.215 - 0.105 / 2, 0.16 - 0.16 / 2, 0.215 + 0.105 / 2, 0.16 + 0.16 / 2),
+    "jump": (0.89 - 0.14 / 2, 0.17 - 0.19 / 2, 0.89 + 0.14 / 2, 0.17 + 0.19 / 2),
+    "menu": (0.94 - 0.08 / 2, 0.92 - 0.07 / 2, 0.94 + 0.08 / 2, 0.92 + 0.07 / 2),
+}
+for name, (x0, y0, x1, y1) in rectangles.items():
+    if x0 < 0 or y0 < 0 or x1 > 1 or y1 > 1:
+        errors.append(f"Touch control {name} leaves normalized screen bounds")
+names = list(rectangles)
+for i, a in enumerate(names):
+    ax0, ay0, ax1, ay1 = rectangles[a]
+    for b in names[i + 1:]:
+        bx0, by0, bx1, by1 = rectangles[b]
+        if min(ax1, bx1) > max(ax0, bx0) and min(ay1, by1) > max(ay0, by0):
+            errors.append(f"Touch hitboxes overlap: {a} and {b}")
+
 for script in root.glob("Assets/**/*.cs"):
     source = script.read_text(encoding="utf-8")
     if "\x00" in source:
@@ -51,4 +86,4 @@ if errors:
     print("\n".join("ERROR: " + e for e in errors))
     sys.exit(1)
 print(f"Source structure checks passed for {len(required)} required files.")
-print("Note: Unity compilation, play-mode behavior, pixel hit-testing, RTL rendering, and Android builds are not tested by this script.")
+print("Source contracts and normalized hitbox separation passed. Unity compilation, real pixel hit-testing, RTL rendering, and Android builds still require Unity/device QA.")
