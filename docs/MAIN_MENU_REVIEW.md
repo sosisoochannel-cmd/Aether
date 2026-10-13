@@ -2,7 +2,7 @@
 
 ## Visual direction
 
-The menu has one clear primary action, two real secondary destinations, and one atmospheric focal point to the right. Typography is white only; hierarchy comes from size, bold weight, spacing, shadow, and alpha. Gold is reserved for non-text accents such as the primary outline and a restrained rift highlight.
+The menu has one clear primary action, three supporting destinations arranged with deliberate spacing, and one atmospheric focal point to the right. Typography is white only; hierarchy comes from size, bold weight, spacing, shadow, and alpha. Gold is reserved for non-text accents such as the primary outline and a restrained rift highlight.
 
 Pattern-level references researched for this pass:
 
