@@ -3,6 +3,7 @@
 ## Implemented in source
 - Landscape-first flow: Varellon logo reveal, minimal Persian warning, black-and-gold menu, then the movement room.
 - Restrained black/gold UI styling.
+- Reusable parallelogram menu plates with a thin gold outline; pointer hit-testing follows the visible slanted silhouette instead of accepting transparent corner taps.
 - Logo presentation in source: a short fade/scale settle and one softened gold glint, with no repeated flashes or extra logo geometry.
 - Warning copy expanded to explain the prototype state, possible changes, and save-compatibility risks; the screen has no visible countdown/progress bar/continue button and advances automatically.
 - Distinct press-and-hold left/right touch controls and a jump button with pointer-ID tracking, simultaneous-finger support, pressed-state feedback, and focus-loss reset.
