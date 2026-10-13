@@ -29,6 +29,7 @@ public sealed class AetherUIButtonFeedback : MonoBehaviour,
 
     private void Update()
     {
+        if (reveal == null) reveal = GetComponent<AetherUIReveal>();
         if (rect == null || (reveal != null && !reveal.IsComplete)) return;
         float scale = pressedPointers.Count > 0 ? 0.975f : (pointerInside ? 1.012f : 1f);
         float blend = 1f - Mathf.Exp(-16f * Time.unscaledDeltaTime);
