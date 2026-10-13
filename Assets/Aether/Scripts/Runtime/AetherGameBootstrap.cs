@@ -27,10 +27,15 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private bool animateMenuUi;
     private bool menuEntrancePlayed;
     private float nextMenuRevealDelay;
+    private static bool menuMotionEnabled = true;
+    private static float uiTextScale = 1f;
 
     private void Awake()
     {
         Screen.orientation = ScreenOrientation.LandscapeLeft;
+        menuMotionEnabled = PlayerPrefs.GetInt("Aether.MenuMotionEnabled", 1) != 0;
+        uiTextScale = Mathf.Clamp(PlayerPrefs.GetFloat("Aether.UiTextScale", 1f), 1f, 1.12f);
+        ApplyMenuPreferences();
         Application.targetFrameRate = 60;
         QualitySettings.vSyncCount = 0;
         font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -124,10 +129,10 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             var logoImage = logoObject.GetComponent<Image>();
             logoImage.sprite = logoSprite;
             logoImage.preserveAspect = true;
-            logoImage.color = new Color(1f, 1f, 1f, 0f);
+            logoImage.color = menuMotionEnabled ? new Color(1f, 1f, 1f, 0f) : Color.white;
             logoImage.raycastTarget = false;
-            logoRect.localScale = Vector3.one * 0.94f;
-            StartCoroutine(AnimateLogoReveal(logoRect, logoImage));
+            logoRect.localScale = menuMotionEnabled ? Vector3.one * 0.94f : Vector3.one;
+            if (menuMotionEnabled) StartCoroutine(AnimateLogoReveal(logoRect, logoImage));
 
             var glintObject = new GameObject("Single Logo Glint", typeof(RectTransform), typeof(Image));
             glintObject.transform.SetParent(canvas.transform, false);
@@ -137,10 +142,13 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             glintRect.sizeDelta = new Vector2(44f, 500f);
             glintRect.localRotation = Quaternion.Euler(0f, 0f, 18f);
             var glintImage = glintObject.GetComponent<Image>();
-            glintImage.sprite = SoftGlintSprite();
             glintImage.color = new Color(Gold.r, Gold.g, Gold.b, 0f);
             glintImage.raycastTarget = false;
-            StartCoroutine(PlayLogoGlint(glintRect, glintImage));
+            if (menuMotionEnabled)
+            {
+                glintImage.sprite = SoftGlintSprite();
+                StartCoroutine(PlayLogoGlint(glintRect, glintImage));
+            }
         }
         else
         {
@@ -228,7 +236,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 
     private IEnumerator ShowWarningAfterIntro()
     {
-        yield return new WaitForSecondsRealtime(2.1f);
+        yield return new WaitForSecondsRealtime(menuMotionEnabled ? 2.1f : 0.65f);
         ShowWarning();
     }
 
@@ -272,9 +280,11 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             new Vector2(0.19f, 0.075f), ShowControls, false);
         MakeButton("دربارهٔ بازی", new Vector2(0.345f, 0.275f),
             new Vector2(0.22f, 0.075f), ShowAbout, false);
-        Label("نمونهٔ اولیه  •  منطقهٔ آزمایشی", 15,
-            new Color(1f, 1f, 1f, 0.43f), new Vector2(0.205f, 0.105f),
-            new Vector2(0.36f, 0.045f), TextAnchor.MiddleLeft);
+        MakeButton("تنظیمات", new Vector2(0.22f, 0.16f),
+            new Vector2(0.30f, 0.072f), ShowSettings, false);
+        Label("نمونهٔ اولیه  •  منطقهٔ آزمایشی", 14,
+            new Color(1f, 1f, 1f, 0.43f), new Vector2(0.205f, 0.065f),
+            new Vector2(0.36f, 0.035f), TextAnchor.MiddleLeft);
         animateMenuUi = false;
         menuEntrancePlayed = true;
     }
@@ -299,6 +309,54 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             go.transform.SetSiblingIndex(Mathf.Max(0, canvas.transform.childCount - 2));
             safeAreaRoot.SetAsLastSibling();
         }
+    }
+
+    private void ShowSettings()
+    {
+        animateMenuUi = false;
+        ClearUI();
+        Panel("SettingsBackdrop", Ink, Vector2.zero, Vector2.one);
+        BuildMenuAtmosphere();
+        animateMenuUi = true;
+        nextMenuRevealDelay = 0.02f;
+        Label("تنظیمات", 54, Color.white, new Vector2(0.23f, 0.80f),
+            new Vector2(0.42f, 0.12f), TextAnchor.MiddleCenter);
+        Label("این گزینه‌ها روی همین دستگاه ذخیره می‌شوند.", 22,
+            new Color(1f, 1f, 1f, 0.72f), new Vector2(0.25f, 0.69f),
+            new Vector2(0.48f, 0.06f), TextAnchor.MiddleCenter);
+        string motionText = menuMotionEnabled ? "حرکت پس‌زمینه: روشن" : "حرکت پس‌زمینه: خاموش";
+        MakeButton(motionText, new Vector2(0.23f, 0.53f),
+            new Vector2(0.34f, 0.078f), ToggleMenuMotion, false);
+        string textText = uiTextScale > 1.05f ? "اندازهٔ نوشته: درشت" : "اندازهٔ نوشته: عادی";
+        MakeButton(textText, new Vector2(0.23f, 0.41f),
+            new Vector2(0.34f, 0.078f), ToggleTextSize, false);
+        MakeButton("بازگشت به منو", new Vector2(0.23f, 0.25f),
+            new Vector2(0.30f, 0.078f), ShowMenu, true);
+        animateMenuUi = false;
+    }
+
+    private void ToggleMenuMotion()
+    {
+        menuMotionEnabled = !menuMotionEnabled;
+        PlayerPrefs.SetInt("Aether.MenuMotionEnabled", menuMotionEnabled ? 1 : 0);
+        PlayerPrefs.Save();
+        ApplyMenuPreferences();
+        ShowSettings();
+    }
+
+    private void ToggleTextSize()
+    {
+        uiTextScale = uiTextScale > 1.05f ? 1f : 1.12f;
+        PlayerPrefs.SetFloat("Aether.UiTextScale", uiTextScale);
+        PlayerPrefs.Save();
+        ShowSettings();
+    }
+
+    private static void ApplyMenuPreferences()
+    {
+        AetherMenuAtmosphere.MotionEnabled = menuMotionEnabled;
+        AetherUIReveal.MotionEnabled = menuMotionEnabled;
+        AetherUIButtonFeedback.MotionEnabled = menuMotionEnabled;
     }
 
     private void ShowControls()
@@ -431,7 +489,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         bool isRtl = ContainsRtl(value);
         text.text = PrepareText(value);
         text.font = isRtl && rtlFont != null ? rtlFont : font;
-        text.fontSize = size;
+        text.fontSize = Mathf.Max(12, Mathf.RoundToInt(size * uiTextScale));
         text.color = new Color(1f, 1f, 1f, Mathf.Clamp01(color.a));
         text.fontStyle = FontStyle.Bold;
         text.raycastTarget = false;
