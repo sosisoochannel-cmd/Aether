@@ -3,8 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Small unscaled entrance animation for menu text and controls. Buttons remain
-/// non-interactive until their entrance finishes, avoiding invisible tap targets.
+/// Small unscaled entrance animation for menu text and controls. The visual layer
+/// never blocks a button's immediate response while it is fading into view.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(RectTransform), typeof(Graphic))]
@@ -39,7 +39,6 @@ public sealed class AetherUIReveal : MonoBehaviour
         configured = true;
         IsComplete = false;
 
-        if (button != null) button.interactable = false;
         graphic.raycastTarget = button != null;
         Color hidden = finalColor;
         hidden.a = 0f;
@@ -72,7 +71,6 @@ public sealed class AetherUIReveal : MonoBehaviour
             rect.localScale = finalScale;
         }
         if (graphic != null) graphic.color = finalColor;
-        if (button != null && this != null) button.interactable = true;
         IsComplete = true;
     }
 }
