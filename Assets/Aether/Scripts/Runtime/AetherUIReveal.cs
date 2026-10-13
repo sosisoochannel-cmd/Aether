@@ -39,7 +39,7 @@ public sealed class AetherUIReveal : MonoBehaviour
         finalScale = rect.localScale;
         configured = true;
         IsComplete = false;
-        graphic.raycastTarget = isButtonGraphic;
+        graphic.raycastTarget = false;
 
         if (!MotionEnabled)
         {
@@ -73,6 +73,8 @@ public sealed class AetherUIReveal : MonoBehaviour
             Color c = finalColor;
             c.a = finalColor.a * eased;
             graphic.color = c;
+            // Do not expose an invisible hit target; enable the button once the plate is visibly entering.
+            if (isButtonGraphic && t >= 0.18f) graphic.raycastTarget = true;
             yield return null;
         }
 
@@ -81,7 +83,11 @@ public sealed class AetherUIReveal : MonoBehaviour
             rect.anchoredPosition = finalPosition;
             rect.localScale = finalScale;
         }
-        if (graphic != null) graphic.color = finalColor;
+        if (graphic != null)
+        {
+            graphic.color = finalColor;
+            graphic.raycastTarget = isButtonGraphic;
+        }
         IsComplete = true;
     }
 }
