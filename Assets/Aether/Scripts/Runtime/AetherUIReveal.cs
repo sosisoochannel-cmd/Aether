@@ -3,8 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Small unscaled entrance animation for menu text and controls. The visual layer
-/// never blocks a button's immediate response while it is fading into view.
+/// Small unscaled entrance animation for menu text and controls. Invisible button plates
+/// stay untappable, then become active shortly after their fade/slide becomes visible.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(RectTransform), typeof(Graphic))]
