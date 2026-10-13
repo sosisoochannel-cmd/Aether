@@ -12,7 +12,7 @@ Pattern-level references researched for this pass:
 - Apple game-interface guidance: legibility, adaptable layout, and sufficiently large touch targets across screen shapes.
 - Unity's legacy UI Graphic API: purpose-built meshes through VertexHelper; Unity also exposes a bold text style for legacy UI Text.
 
-These are design patterns, not a request to copy another game's art, exact layout, marks, or assets.
+These are design patterns, not a request to copy another game's art, exact layout, marks, or assets. Reference galleries and platform guidance: [Hollow Knight menu capture](https://interfaceingame.com/screenshots/hollow-knight-main-menu/), [Prince of Persia: The Lost Crown interface gallery](https://interfaceingame.com/games/prince-of-persia-the-lost-crown), [Apple game-interface guidance](https://developer.apple.com/design/human-interface-guidelines/designing-for-games/), [Apple touch controls](https://developer.apple.com/design/human-interface-guidelines/game-controls), [Android minimum touch-target guidance](https://support.google.com/accessibility/android/answer/7101858), and [Unity UI performance guidance](https://create.unity3d.com/Unity-UI-optimization-tips).
 
 ## Current implementation in source
 
@@ -21,8 +21,9 @@ These are design patterns, not a request to copy another game's art, exact layou
 - Main title and UI text normalize to white RGB; opacity is used for secondary information.
 - Text uses the bold legacy UI style, a restrained shadow on larger lines, and staggered fade/slide reveals.
 - Button plates use a custom slanted outline, with raycasting matched to the visible polygon.
-- Buttons have a low-amplitude focus/press scale response and stay non-interactive during their reveal.
-- Start, Controls, and About each have real destinations; the old “return to warning” menu action has been removed.
+- Buttons have a low-amplitude focus/press scale response and remain responsive during their visual reveal; reduced-motion mode skips the animation rather than blocking interaction.
+- Start, Controls, Settings, and About each have real destinations; the old “return to warning” menu action has been removed.
+- Settings persist a reduced-motion toggle and a modest UI text-size toggle using PlayerPrefs.
 
 ## Honest source-only score
 
@@ -36,7 +37,7 @@ These are design patterns, not a request to copy another game's art, exact layou
 | Persian/Arabic correctness | 3/10 validation confidence | A shaping fallback is present, but it is not a full Unicode bidirectional implementation and has not been validated in rendered Unity output. |
 | Actual in-game visual quality | Not scored | No Unity render or device capture is available, so claiming a definitive visual score would be dishonest. |
 
-Overall, this is a **provisional 6.5/10 source implementation**, not a final visual acceptance score. The largest remaining uncertainty is how the UI actually renders and feels on devices, not whether more decorative code can be added.
+Overall, this is a **provisional 7/10 source implementation**, not a final visual acceptance score. The source now includes settings and reduced-motion behavior, though neither has been tested interactively in Unity. The largest remaining uncertainty is how the UI actually renders and feels on devices, not whether more decorative code can be added.
 
 ## Acceptance checklist before a higher score
 
