@@ -6,6 +6,7 @@
 - Mobile touch controls: distinct left and right buttons; no virtual joystick.
 - Studio identity: Varellon. In-game title: Aether (never “Project Aether”).
 - Visual direction: restrained black-and-gold identity, strong readability, premium hand-crafted atmosphere. Inspiration may inform quality, never copy protected art or assets.
+- Menu action plates use slanted/parallelogram silhouettes with hit-testing that matches the visible polygon; gameplay touch buttons keep separate, explicitly sized rectangles.
 - Persian is the default language for the initial warning flow; localization must be designed for RTL and complex-script validation, not assumed correct from string translation alone.
 
 ## Engineering rules
