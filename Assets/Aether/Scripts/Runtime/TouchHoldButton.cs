@@ -10,6 +10,8 @@ public sealed class TouchHoldButton : MonoBehaviour, IPointerDownHandler, IPoint
     public static bool RightHeld { get; private set; }
     public static bool JumpRequested { get; private set; }
 
+    public static void RequestJump() => JumpRequested = true;
+
     public static void ResetState()
     {
         LeftHeld = false;
