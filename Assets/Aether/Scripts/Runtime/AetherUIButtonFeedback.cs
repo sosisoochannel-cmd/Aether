@@ -15,6 +15,7 @@ public sealed class AetherUIButtonFeedback : MonoBehaviour,
     private readonly HashSet<int> pressedPointers = new HashSet<int>();
     private RectTransform rect;
     private Button button;
+    public static bool MotionEnabled { get; set; } = true;
     private AetherUIReveal reveal;
     private Vector3 baseScale;
     private bool pointerInside;
@@ -31,6 +32,11 @@ public sealed class AetherUIButtonFeedback : MonoBehaviour,
     {
         if (reveal == null) reveal = GetComponent<AetherUIReveal>();
         if (rect == null || (reveal != null && !reveal.IsComplete)) return;
+        if (!MotionEnabled)
+        {
+            rect.localScale = baseScale;
+            return;
+        }
         float scale = pressedPointers.Count > 0 ? 0.975f : (pointerInside ? 1.012f : 1f);
         float blend = 1f - Mathf.Exp(-16f * Time.unscaledDeltaTime);
         rect.localScale = Vector3.Lerp(rect.localScale, baseScale * scale, blend);
