@@ -267,12 +267,13 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         var image = go.GetComponent<Image>();
         image.color = color;
         image.raycastTarget = false;
+        if (safeAreaRoot != null) safeAreaRoot.SetAsLastSibling();
     }
 
     private Text Label(string value, int size, Color color, Vector2 center, Vector2 dimensions, TextAnchor alignment)
     {
         var go = new GameObject("Label: " + value, typeof(RectTransform), typeof(Text));
-        go.transform.SetParent(canvas.transform, false);
+        go.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
         var rect = go.GetComponent<RectTransform>();
         rect.anchorMin = center - dimensions * 0.5f;
         rect.anchorMax = center + dimensions * 0.5f;
@@ -314,7 +315,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         go.GetComponent<Image>().color = new Color(Gold.r, Gold.g, Gold.b, 0.16f);
         var touch = go.GetComponent<TouchHoldButton>();
         touch.Configure(action);
-        var label = Label(title, title == "JUMP" ? 24 : 42, Gold, center, dimensions * 0.9f, TextAnchor.MiddleCenter);
+        var label = Label(title, (title == "JUMP" || title == "پرش") ? 24 : 42, Gold, center, dimensions * 0.9f, TextAnchor.MiddleCenter);
         label.transform.SetAsLastSibling();
     }
 
