@@ -12,7 +12,6 @@ public sealed class AetherUIReveal : MonoBehaviour
 {
     private RectTransform rect;
     private Graphic graphic;
-    private Button button;
     private Color finalColor;
     private Vector2 finalPosition;
     private Vector3 finalScale;
@@ -21,13 +20,13 @@ public sealed class AetherUIReveal : MonoBehaviour
     private Vector2 offset = new Vector2(0f, -16f);
     private bool configured;
     public bool IsComplete { get; private set; }
+    public static bool MotionEnabled { get; set; } = true;
 
     public void Begin(float delaySeconds, Vector2 slideOffset, float durationSeconds = 0.34f)
     {
         if (configured) return;
         rect = GetComponent<RectTransform>();
         graphic = GetComponent<Graphic>();
-        button = GetComponent<Button>();
         if (rect == null || graphic == null) return;
 
         delay = Mathf.Max(0f, delaySeconds);
@@ -39,7 +38,17 @@ public sealed class AetherUIReveal : MonoBehaviour
         configured = true;
         IsComplete = false;
 
-        graphic.raycastTarget = button != null;
+        if (!MotionEnabled)
+        {
+            rect.anchoredPosition = finalPosition;
+            rect.localScale = finalScale;
+            graphic.color = finalColor;
+            graphic.raycastTarget = false;
+            IsComplete = true;
+            return;
+        }
+
+        graphic.raycastTarget = false;
         Color hidden = finalColor;
         hidden.a = 0f;
         graphic.color = hidden;
