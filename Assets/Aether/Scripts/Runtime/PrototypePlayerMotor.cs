@@ -29,7 +29,7 @@ public sealed class PrototypePlayerMotor : MonoBehaviour
         {
             if (Keyboard.current.leftArrowKey.isPressed || Keyboard.current.aKey.isPressed) horizontal -= 1f;
             if (Keyboard.current.rightArrowKey.isPressed || Keyboard.current.dKey.isPressed) horizontal += 1f;
-            if (Keyboard.current.spaceKey.wasPressedThisFrame) TouchHoldButton.ConsumeJump();
+            if (Keyboard.current.spaceKey.wasPressedThisFrame) TouchHoldButton.RequestJump();
         }
 #endif
         horizontal = Mathf.Clamp(horizontal, -1f, 1f);
