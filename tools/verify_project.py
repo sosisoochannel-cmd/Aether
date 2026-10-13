@@ -21,6 +21,7 @@ required = [
     "Assets/Aether/Scripts/Runtime/PrototypePlayerMotor.cs",
     "Assets/Aether/Editor/AetherProjectSetup.cs",
     "docs/ARCHITECTURE.md",
+    "docs/MAIN_MENU_REVIEW.md",
     "docs/TOUCH_CONTROLS.md",
     "Assets/Aether/Resources/Fonts/Vazirmatn-Regular.ttf",
     "Assets/Aether/Scripts/Runtime/RtlText.cs",
@@ -67,6 +68,8 @@ if bootstrap.exists():
         errors.append("Main menu must not expose the old return-to-warning placeholder action")
     if "text.color = new Color(1f, 1f, 1f," not in source:
         errors.append("All UI text must use white with opacity as its hierarchy signal")
+    if "\\\\n" in source:
+        errors.append("Unexpected doubled newline escape in UI source; it would print literal \\n")
 
 atmosphere_file = root / "Assets/Aether/Scripts/Runtime/AetherMenuAtmosphere.cs"
 if atmosphere_file.exists():
