@@ -279,7 +279,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         Label("AETHER", 102, Color.white, new Vector2(0.235f, 0.695f),
             new Vector2(0.43f, 0.19f), TextAnchor.MiddleLeft);
         Label("سفری تازه از دل طبیعت ناشناخته", 25, Color.white,
-            new Vector2(0.245f, 0.555f), new Vector2(0.46f, 0.075f), TextAnchor.MiddleLeft);
+            new Vector2(0.245f, 0.555f), new Vector2(0.46f, 0.075f), TextAnchor.MiddleRight);
         MakeButton("شروع بازی", new Vector2(0.22f, 0.405f),
             new Vector2(0.30f, 0.095f), StartGame, true);
         MakeButton("کنترل‌ها", new Vector2(0.135f, 0.275f),
@@ -290,7 +290,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             new Vector2(0.30f, 0.072f), ShowSettings, false);
         Label("نمونهٔ اولیه  •  منطقهٔ آزمایشی", 14,
             new Color(1f, 1f, 1f, 0.43f), new Vector2(0.205f, 0.065f),
-            new Vector2(0.36f, 0.035f), TextAnchor.MiddleLeft);
+            new Vector2(0.36f, 0.035f), TextAnchor.MiddleRight);
         animateMenuUi = false;
         menuEntrancePlayed = true;
     }
