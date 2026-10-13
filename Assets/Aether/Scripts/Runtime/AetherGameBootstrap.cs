@@ -25,6 +25,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private static Sprite cachedGlintSprite;
     private bool warningVisible;
     private bool animateMenuUi;
+    private bool menuEntrancePlayed;
     private float nextMenuRevealDelay;
 
     private void Awake()
@@ -257,7 +258,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         Panel("MenuBackdrop", Ink, Vector2.zero, Vector2.one);
         BuildMenuAtmosphere();
 
-        animateMenuUi = true;
+        animateMenuUi = !menuEntrancePlayed;
         nextMenuRevealDelay = 0.02f;
         Label("V A R E L L O N", 20, Muted, new Vector2(0.22f, 0.875f),
             new Vector2(0.34f, 0.055f), TextAnchor.MiddleLeft);
@@ -275,6 +276,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             new Color(1f, 1f, 1f, 0.43f), new Vector2(0.205f, 0.105f),
             new Vector2(0.36f, 0.045f), TextAnchor.MiddleLeft);
         animateMenuUi = false;
+        menuEntrancePlayed = true;
     }
 
     private void BuildMenuAtmosphere()
