@@ -1,0 +1,30 @@
+name: Aether Android APK
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Build APK with Unity
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: .
+          unityVersion: 6000.3.24f1
+          targetPlatform: Android
+          buildMethod: AetherAndroidBuild.Build
+          androidAppBundle: false
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Aether-Android-APK
+          path: Builds/Android/Aether.apk
+          if-no-files-found: error
+          retention-days: 14
