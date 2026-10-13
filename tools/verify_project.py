@@ -90,6 +90,10 @@ if reveal_file.exists():
             errors.append(f"UI entrance animation missing contract: {contract}")
     if "button.interactable = false" in reveal_source or "button.interactable = true" in reveal_source:
         errors.append("UI entrance animation must not block interaction while the menu appears")
+    if "graphic.raycastTarget = isButtonGraphic" not in reveal_source:
+        errors.append("UI reveal must preserve the appropriate raycast target for buttons and labels")
+    if "graphic.raycastTarget = false" in reveal_source:
+        errors.append("UI reveal must not disable button raycasts during fade-in")
 
 feedback_file = root / "Assets/Aether/Scripts/Runtime/AetherUIButtonFeedback.cs"
 if feedback_file.exists():
