@@ -9,7 +9,7 @@
 - Menu action plates use slanted/parallelogram silhouettes with hit-testing that matches the visible polygon; gameplay touch buttons keep separate, explicitly sized rectangles.
 - Text color is white throughout the runtime UI; hierarchy is expressed through size, synthetic bold weight, opacity, spacing, and restrained shadow—not gold typography.
 - The title screen uses a purpose-built, throttled procedural Graphic for layered silhouettes, a broken rift ring, slow motes, and negative space around the primary action. Avoid full-screen high-frequency effects on mobile.
-- The title-menu entrance is staggered once per app session; subsequent returns keep the background alive without replaying a long intro. Buttons remain responsive during visual reveals, so animation never gates the primary action.
+- The title-menu entrance is staggered once per app session. Hidden button plates do not receive taps while transparent; each becomes interactive as it visibly enters. Reduced-motion mode skips entrance and hover/press scaling without changing navigation behavior.
 - Design references are pattern-level only: Hollow Knight's dark negative space and white title hierarchy, Prince of Persia: The Lost Crown's clear primary action and atmospheric scene composition, and FC Mobile's distinct navigation choices. Do not reproduce their assets, logos, or exact layouts.
 - Persian is the default language for the initial warning flow; localization must be designed for RTL and complex-script validation, not assumed correct from string translation alone.
 
