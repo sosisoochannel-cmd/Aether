@@ -360,16 +360,26 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 
     private void MakeButton(string title, Vector2 center, Vector2 dimensions, UnityEngine.Events.UnityAction action, bool primary)
     {
-        var go = new GameObject("Button: " + title, typeof(RectTransform), typeof(Image), typeof(Button));
+        var go = new GameObject("Button: " + title, typeof(RectTransform), typeof(AetherParallelogramGraphic), typeof(Button));
         go.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
         var rect = go.GetComponent<RectTransform>();
         rect.anchorMin = center - dimensions * 0.5f; rect.anchorMax = center + dimensions * 0.5f;
         rect.offsetMin = Vector2.zero; rect.offsetMax = Vector2.zero;
-        var image = go.GetComponent<Image>();
-        image.color = primary ? new Color(Gold.r, Gold.g, Gold.b, 0.15f) : new Color(1f, 1f, 1f, 0.035f);
+        var plate = go.GetComponent<AetherParallelogramGraphic>();
+        Color fill = primary
+            ? new Color(Gold.r, Gold.g, Gold.b, 0.13f)
+            : new Color(Muted.r, Muted.g, Muted.b, 0.035f);
+        Color outline = primary
+            ? new Color(Gold.r, Gold.g, Gold.b, 0.62f)
+            : new Color(Muted.r, Muted.g, Muted.b, 0.22f);
+        plate.Configure(fill, outline, 0.12f, 1.6f);
         var button = go.GetComponent<Button>();
-        var colors = button.colors; colors.normalColor = image.color; colors.highlightedColor = new Color(Gold.r, Gold.g, Gold.b, 0.35f);
-        colors.pressedColor = new Color(Gold.r, Gold.g, Gold.b, 0.55f); button.colors = colors;
+        button.targetGraphic = plate;
+        var colors = button.colors;
+        colors.normalColor = new Color(1f, 1f, 1f, 0.88f);
+        colors.highlightedColor = Color.white;
+        colors.pressedColor = new Color(0.86f, 0.79f, 0.60f, 0.76f);
+        button.colors = colors;
         button.onClick.AddListener(action);
         var label = Label(title, 25, primary ? Gold : Color.white, center, dimensions * 0.92f, TextAnchor.MiddleCenter);
         label.transform.SetAsLastSibling();
