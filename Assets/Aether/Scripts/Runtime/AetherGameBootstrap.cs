@@ -22,6 +22,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private Font rtlFont;
     private GameObject worldRoot;
     private static Sprite cachedWhiteSprite;
+    private static Sprite cachedGlintSprite;
     private bool warningVisible;
 
     private void Awake()
@@ -120,16 +121,20 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             var logoImage = logoObject.GetComponent<Image>();
             logoImage.sprite = logoSprite;
             logoImage.preserveAspect = true;
+            logoImage.color = new Color(1f, 1f, 1f, 0f);
             logoImage.raycastTarget = false;
+            logoRect.localScale = Vector3.one * 0.94f;
+            StartCoroutine(AnimateLogoReveal(logoRect, logoImage));
 
             var glintObject = new GameObject("Single Logo Glint", typeof(RectTransform), typeof(Image));
             glintObject.transform.SetParent(canvas.transform, false);
             var glintRect = glintObject.GetComponent<RectTransform>();
             glintRect.anchorMin = new Vector2(0.5f, 0.5f);
             glintRect.anchorMax = new Vector2(0.5f, 0.5f);
-            glintRect.sizeDelta = new Vector2(4f, 300f);
+            glintRect.sizeDelta = new Vector2(44f, 500f);
             glintRect.localRotation = Quaternion.Euler(0f, 0f, 18f);
             var glintImage = glintObject.GetComponent<Image>();
+            glintImage.sprite = SoftGlintSprite();
             glintImage.color = new Color(Gold.r, Gold.g, Gold.b, 0f);
             glintImage.raycastTarget = false;
             StartCoroutine(PlayLogoGlint(glintRect, glintImage));
@@ -141,9 +146,69 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         StartCoroutine(ShowWarningAfterIntro());
     }
 
+    private IEnumerator AnimateLogoReveal(RectTransform logo, Image image)
+    {
+        yield return new WaitForSecondsRealtime(0.08f);
+        const float duration = 0.95f;
+        float elapsed = 0f;
+        while (elapsed < duration && logo != null && image != null)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float eased = 1f - Mathf.Pow(1f - t, 3f);
+            float scale;
+            if (t < 0.82f)
+            {
+                float settleT = t / 0.82f;
+                float settleEase = 1f - Mathf.Pow(1f - settleT, 3f);
+                scale = Mathf.Lerp(0.94f, 1.018f, settleEase);
+            }
+            else
+            {
+                float settleT = (t - 0.82f) / 0.18f;
+                settleT = settleT * settleT * (3f - 2f * settleT);
+                scale = Mathf.Lerp(1.018f, 1f, settleT);
+            }
+            logo.localScale = Vector3.one * scale;
+            image.color = new Color(1f, 1f, 1f, eased);
+            yield return null;
+        }
+        if (logo != null) logo.localScale = Vector3.one;
+        if (image != null) image.color = Color.white;
+    }
+
+    private static Sprite SoftGlintSprite()
+    {
+        if (cachedGlintSprite != null) return cachedGlintSprite;
+        const int width = 64;
+        const int height = 256;
+        var texture = new Texture2D(width, height, TextureFormat.RGBA32, false, true);
+        texture.name = "Aether Soft Gold Glint";
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.filterMode = FilterMode.Bilinear;
+        for (int y = 0; y < height; y++)
+        {
+            float v = (float)y / (height - 1);
+            float edge = Mathf.Clamp01(Mathf.Min(v, 1f - v) * 8f);
+            float verticalFade = edge * edge * (3f - 2f * edge);
+            for (int x = 0; x < width; x++)
+            {
+                float u = ((x / (float)(width - 1)) - 0.5f) * 2f;
+                float core = Mathf.Exp(-u * u * 24f);
+                float halo = Mathf.Exp(-u * u * 3.2f) * 0.13f;
+                float alpha = Mathf.Clamp01(core + halo) * verticalFade * 0.72f;
+                texture.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
+            }
+        }
+        texture.Apply(false, true);
+        cachedGlintSprite = Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(0.5f, 0.5f), 100f);
+        cachedGlintSprite.name = "Aether Soft Gold Glint";
+        return cachedGlintSprite;
+    }
+
     private IEnumerator PlayLogoGlint(RectTransform glint, Image image)
     {
-        yield return new WaitForSecondsRealtime(0.35f);
+        yield return new WaitForSecondsRealtime(0.78f);
         const float duration = 1.15f;
         float elapsed = 0f;
         while (elapsed < duration && glint != null)
@@ -176,9 +241,8 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         ClearUI();
         Panel("WarningPanel", Ink, Vector2.zero, Vector2.one);
         Label("هشدار", 54, Gold, new Vector2(0.5f, 0.83f), new Vector2(0.8f, 0.14f), TextAnchor.MiddleCenter);
-        Label("این بازی در حال توسعه است. پیشرفت بازی ممکن است تغییر کند و برخی بخش‌ها هنوز نهایی نشده‌اند.\nبرای تجربه بهتر، دستگاه خود را به‌روز نگه دارید و در محیط امن بازی کنید.\nبا ادامه دادن، وارد نسخه آزمایشی Aether می‌شوید.", 27, Color.white,
-            new Vector2(0.16f, 0.30f), new Vector2(0.68f, 0.43f), TextAnchor.MiddleCenter);
-        MakeButton("ادامه", new Vector2(0.5f, 0.13f), new Vector2(0.22f, 0.09f), ShowMenu, true);
+        Label("این نسخه از Aether هنوز در حال توسعه است؛ بنابراین ممکن است بخش‌ها، کنترل‌ها و روند پیشرفت در به‌روزرسانی‌های آینده تغییر کنند.\nذخیره‌های نسخه‌های آزمایشی ممکن است با نسخه‌های بعدی سازگار نباشند؛ برای پیشرفت مهم خود نسخه پشتیبان نگه دارید.\nممکن است با خطا، افت عملکرد یا رفتارهای پیش‌بینی‌نشده روبه‌رو شوید. در صورت بروز مشکل، بازی را ببندید و دوباره اجرا کنید.\nبا ادامه، وارد نسخه آزمایشی بازی می‌شوید و می‌پذیرید که این نسخه هنوز محصول نهایی نیست.", 25, Color.white,
+            new Vector2(0.5f, 0.48f), new Vector2(0.76f, 0.48f), TextAnchor.MiddleCenter);
         StopCoroutine(nameof(DismissWarningAfterDelay));
         StartCoroutine(DismissWarningAfterDelay());
     }
