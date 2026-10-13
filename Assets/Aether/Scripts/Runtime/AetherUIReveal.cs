@@ -1,0 +1,75 @@
+using System.Collections;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// Small unscaled entrance animation for menu text and controls. Buttons remain
+/// non-interactive until their entrance finishes, avoiding invisible tap targets.
+/// </summary>
+[DisallowMultipleComponent]
+[RequireComponent(typeof(RectTransform), typeof(Graphic))]
+public sealed class AetherUIReveal : MonoBehaviour
+{
+    private RectTransform rect;
+    private Graphic graphic;
+    private Button button;
+    private Color finalColor;
+    private Vector2 finalPosition;
+    private Vector3 finalScale;
+    private float delay;
+    private float duration = 0.34f;
+    private Vector2 offset = new Vector2(0f, -16f);
+    private bool configured;
+
+    public void Begin(float delaySeconds, Vector2 slideOffset, float durationSeconds = 0.34f)
+    {
+        if (configured) return;
+        rect = GetComponent<RectTransform>();
+        graphic = GetComponent<Graphic>();
+        button = GetComponent<Button>();
+        if (rect == null || graphic == null) return;
+
+        delay = Mathf.Max(0f, delaySeconds);
+        offset = slideOffset;
+        duration = Mathf.Max(0.08f, durationSeconds);
+        finalColor = graphic.color;
+        finalPosition = rect.anchoredPosition;
+        finalScale = rect.localScale;
+        configured = true;
+
+        if (button != null) button.interactable = false;
+        graphic.raycastTarget = button != null;
+        Color hidden = finalColor;
+        hidden.a = 0f;
+        graphic.color = hidden;
+        rect.anchoredPosition = finalPosition + offset;
+        rect.localScale = finalScale * 0.985f;
+        StartCoroutine(Reveal());
+    }
+
+    private IEnumerator Reveal()
+    {
+        if (delay > 0f) yield return new WaitForSecondsRealtime(delay);
+        float elapsed = 0f;
+        while (elapsed < duration && this != null && rect != null && graphic != null)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            float eased = 1f - Mathf.Pow(1f - t, 3f);
+            rect.anchoredPosition = Vector2.Lerp(finalPosition + offset, finalPosition, eased);
+            rect.localScale = Vector3.Lerp(finalScale * 0.985f, finalScale, eased);
+            Color c = finalColor;
+            c.a = finalColor.a * eased;
+            graphic.color = c;
+            yield return null;
+        }
+
+        if (rect != null)
+        {
+            rect.anchoredPosition = finalPosition;
+            rect.localScale = finalScale;
+        }
+        if (graphic != null) graphic.color = finalColor;
+        if (button != null && this != null) button.interactable = true;
+    }
+}
