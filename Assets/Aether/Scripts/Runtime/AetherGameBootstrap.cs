@@ -11,7 +11,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 {
     private static readonly Color Ink = new Color(0.025f, 0.027f, 0.035f);
     private static readonly Color Gold = new Color(0.86f, 0.67f, 0.29f);
-    private static readonly Color Muted = new Color(0.68f, 0.66f, 0.61f);
+    private static readonly Color Muted = new Color(1f, 1f, 1f, 0.64f);
     private Canvas canvas;
     private RectTransform safeAreaRoot;
     private int lastScreenWidth;
@@ -24,6 +24,8 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private static Sprite cachedWhiteSprite;
     private static Sprite cachedGlintSprite;
     private bool warningVisible;
+    private bool animateMenuUi;
+    private float nextMenuRevealDelay;
 
     private void Awake()
     {
@@ -250,13 +252,79 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private void ShowMenu()
     {
         warningVisible = false;
+        animateMenuUi = false;
         ClearUI();
         Panel("MenuBackdrop", Ink, Vector2.zero, Vector2.one);
-        Label("V A R E L L O N", 23, Muted, new Vector2(0.5f, 0.82f), new Vector2(0.7f, 0.07f), TextAnchor.MiddleCenter);
-        Label("AETHER", 92, Gold, new Vector2(0.5f, 0.62f), new Vector2(0.8f, 0.18f), TextAnchor.MiddleCenter);
-        Label("مسیر سبز — منطقهٔ یک", 24, Muted, new Vector2(0.5f, 0.51f), new Vector2(0.7f, 0.06f), TextAnchor.MiddleCenter);
-        MakeButton("شروع بازی", new Vector2(0.5f, 0.35f), new Vector2(0.27f, 0.09f), StartGame, true);
-        MakeButton("بازگشت به هشدار", new Vector2(0.5f, 0.22f), new Vector2(0.27f, 0.075f), ShowWarning, false);
+        BuildMenuAtmosphere();
+
+        animateMenuUi = true;
+        nextMenuRevealDelay = 0.02f;
+        Label("V A R E L L O N", 20, Muted, new Vector2(0.22f, 0.875f),
+            new Vector2(0.34f, 0.055f), TextAnchor.MiddleLeft);
+        Label("AETHER", 102, Color.white, new Vector2(0.235f, 0.695f),
+            new Vector2(0.43f, 0.19f), TextAnchor.MiddleLeft);
+        Label("سفری تازه از دل طبیعت ناشناخته", 25, Color.white,
+            new Vector2(0.245f, 0.555f), new Vector2(0.46f, 0.075f), TextAnchor.MiddleLeft);
+        MakeButton("شروع بازی", new Vector2(0.22f, 0.405f),
+            new Vector2(0.30f, 0.095f), StartGame, true);
+        MakeButton("کنترل‌ها", new Vector2(0.135f, 0.275f),
+            new Vector2(0.19f, 0.075f), ShowControls, false);
+        MakeButton("دربارهٔ بازی", new Vector2(0.345f, 0.275f),
+            new Vector2(0.22f, 0.075f), ShowAbout, false);
+        Label("نمونهٔ اولیه  •  منطقهٔ آزمایشی", 15,
+            new Color(1f, 1f, 1f, 0.43f), new Vector2(0.205f, 0.105f),
+            new Vector2(0.36f, 0.045f), TextAnchor.MiddleLeft);
+        animateMenuUi = false;
+    }
+
+    private void BuildMenuAtmosphere()
+    {
+        var go = new GameObject("Menu Atmosphere", typeof(RectTransform), typeof(AetherMenuAtmosphere));
+        go.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
+        var rect = go.GetComponent<RectTransform>();
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+        go.GetComponent<AetherMenuAtmosphere>().SetAllDirty();
+        go.transform.SetAsFirstSibling();
+    }
+
+    private void ShowControls()
+    {
+        ShowMenuInfoScreen("کنترل‌ها",
+            "دکمهٔ سمت چپ برای حرکت به چپ است.\nدکمهٔ سمت راست برای حرکت به راست است.\nبرای پریدن، دکمهٔ پرش را لمس کن.\nمی‌توانی هنگام حرکت نیز بپری.");
+    }
+
+    private void ShowAbout()
+    {
+        ShowMenuInfoScreen("دربارهٔ بازی",
+            "Aether ساختهٔ استودیوی Varellon است.\nاین نسخه نمونهٔ اولیهٔ بازی است؛ طراحی، جهان و سازوکارهای آن هنوز در حال توسعه‌اند.\nاز بازخورد و آزمایش دقیق بازی برای بهترشدن آن استفاده خواهد شد.");
+    }
+
+    private void ShowMenuInfoScreen(string heading, string body)
+    {
+        animateMenuUi = false;
+        ClearUI();
+        Panel("MenuInfoBackdrop", Ink, Vector2.zero, Vector2.one);
+        BuildMenuAtmosphere();
+        animateMenuUi = true;
+        nextMenuRevealDelay = 0.02f;
+        Label(heading, 52, Color.white, new Vector2(0.23f, 0.76f),
+            new Vector2(0.42f, 0.12f), TextAnchor.MiddleCenter);
+        Label(body, 24, new Color(1f, 1f, 1f, 0.82f), new Vector2(0.25f, 0.51f),
+            new Vector2(0.48f, 0.34f), TextAnchor.MiddleCenter);
+        MakeButton("بازگشت به منو", new Vector2(0.23f, 0.25f),
+            new Vector2(0.29f, 0.078f), ShowMenu, false);
+        animateMenuUi = false;
+    }
+
+    private void RevealMenuElement(GameObject target)
+    {
+        if (!animateMenuUi || target == null) return;
+        var reveal = target.AddComponent<AetherUIReveal>();
+        reveal.Begin(nextMenuRevealDelay, new Vector2(0f, -14f), 0.38f);
+        nextMenuRevealDelay += 0.065f;
     }
 
     private void StartGame()
@@ -352,9 +420,22 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         bool isRtl = ContainsRtl(value);
         text.text = PrepareText(value);
         text.font = isRtl && rtlFont != null ? rtlFont : font;
-        text.fontSize = size; text.color = color; text.raycastTarget = false;
+        text.fontSize = size;
+        text.color = new Color(1f, 1f, 1f, Mathf.Clamp01(color.a));
+        text.fontStyle = FontStyle.Bold;
+        text.raycastTarget = false;
+        text.supportRichText = false;
+        text.lineSpacing = 1.08f;
         text.alignment = alignment; text.horizontalOverflow = HorizontalWrapMode.Wrap;
         text.verticalOverflow = VerticalWrapMode.Overflow;
+        if (size >= 23)
+        {
+            var shadow = go.AddComponent<Shadow>();
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.62f);
+            shadow.effectDistance = new Vector2(0f, -1.5f);
+            shadow.useGraphicAlpha = true;
+        }
+        RevealMenuElement(go);
         return text;
     }
 
@@ -381,7 +462,9 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         colors.pressedColor = new Color(0.86f, 0.79f, 0.60f, 0.76f);
         button.colors = colors;
         button.onClick.AddListener(action);
-        var label = Label(title, 25, primary ? Gold : Color.white, center, dimensions * 0.92f, TextAnchor.MiddleCenter);
+        RevealMenuElement(go);
+        var label = Label(title, primary ? 27 : 22, primary ? Color.white : Muted,
+            center, dimensions * 0.92f, TextAnchor.MiddleCenter);
         label.transform.SetAsLastSibling();
     }
 
