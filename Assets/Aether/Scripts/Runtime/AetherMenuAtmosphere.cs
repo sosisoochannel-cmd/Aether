@@ -14,6 +14,7 @@ public sealed class AetherMenuAtmosphere : MaskableGraphic
     private static readonly float[] FarRidge = { 0.24f, 0.31f, 0.26f, 0.39f, 0.29f, 0.33f, 0.23f, 0.37f, 0.28f, 0.34f, 0.25f, 0.31f, 0.23f };
     private static readonly float[] MidRidge = { 0.12f, 0.18f, 0.14f, 0.23f, 0.16f, 0.20f, 0.13f, 0.24f, 0.15f, 0.19f, 0.12f, 0.17f, 0.11f };
     private static readonly float[] NearRidge = { 0.075f, 0.11f, 0.085f, 0.13f, 0.095f, 0.12f, 0.08f, 0.14f, 0.09f, 0.12f, 0.075f, 0.10f, 0.07f };
+    public static bool MotionEnabled { get; set; } = true;
     private float nextRefreshTime;
     private float phase;
 
@@ -27,7 +28,7 @@ public sealed class AetherMenuAtmosphere : MaskableGraphic
 
     private void Update()
     {
-        if (Time.unscaledTime < nextRefreshTime) return;
+        if (!MotionEnabled || Time.unscaledTime < nextRefreshTime) return;
         nextRefreshTime = Time.unscaledTime + 0.04f;
         phase += 0.04f;
         if (phase > 1000f) phase = 0f;
