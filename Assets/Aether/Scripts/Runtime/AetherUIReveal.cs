@@ -12,6 +12,7 @@ public sealed class AetherUIReveal : MonoBehaviour
 {
     private RectTransform rect;
     private Graphic graphic;
+    private bool isButtonGraphic;
     private Color finalColor;
     private Vector2 finalPosition;
     private Vector3 finalScale;
@@ -27,6 +28,7 @@ public sealed class AetherUIReveal : MonoBehaviour
         if (configured) return;
         rect = GetComponent<RectTransform>();
         graphic = GetComponent<Graphic>();
+        isButtonGraphic = GetComponent<Button>() != null;
         if (rect == null || graphic == null) return;
 
         delay = Mathf.Max(0f, delaySeconds);
@@ -43,7 +45,7 @@ public sealed class AetherUIReveal : MonoBehaviour
             rect.anchoredPosition = finalPosition;
             rect.localScale = finalScale;
             graphic.color = finalColor;
-            graphic.raycastTarget = false;
+            graphic.raycastTarget = isButtonGraphic;
             IsComplete = true;
             return;
         }
