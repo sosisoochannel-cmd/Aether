@@ -20,6 +20,7 @@ public sealed class AetherUIReveal : MonoBehaviour
     private float duration = 0.34f;
     private Vector2 offset = new Vector2(0f, -16f);
     private bool configured;
+    public bool IsComplete { get; private set; }
 
     public void Begin(float delaySeconds, Vector2 slideOffset, float durationSeconds = 0.34f)
     {
@@ -36,6 +37,7 @@ public sealed class AetherUIReveal : MonoBehaviour
         finalPosition = rect.anchoredPosition;
         finalScale = rect.localScale;
         configured = true;
+        IsComplete = false;
 
         if (button != null) button.interactable = false;
         graphic.raycastTarget = button != null;
@@ -71,5 +73,6 @@ public sealed class AetherUIReveal : MonoBehaviour
         }
         if (graphic != null) graphic.color = finalColor;
         if (button != null && this != null) button.interactable = true;
+        IsComplete = true;
     }
 }
