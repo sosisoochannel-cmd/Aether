@@ -61,7 +61,7 @@ if bootstrap.exists():
         errors.append("Warning screen must have a non-blocking automatic transition")
     if "button.targetGraphic = plate" not in source:
         errors.append("Menu buttons must use the shaped menu plate as their raycast target")
-    for contract in ("BuildMenuAtmosphere", "ShowControls", "ShowAbout", "ShowMenuInfoScreen", "FontStyle.Bold", "Mathf.Clamp01(color.a)", "RevealMenuElement"):
+    for contract in ("BuildMenuAtmosphere", "ShowControls", "ShowAbout", "ShowMenuInfoScreen", "FontStyle.Bold", "Mathf.Clamp01(color.a)", "RevealMenuElement", "menuEntrancePlayed"):
         if contract not in source:
             errors.append(f"Main menu quality contract missing: {contract}")
     if 'MakeButton("بازگشت به هشدار"' in source:
@@ -81,9 +81,11 @@ if atmosphere_file.exists():
 reveal_file = root / "Assets/Aether/Scripts/Runtime/AetherUIReveal.cs"
 if reveal_file.exists():
     reveal_source = reveal_file.read_text(encoding="utf-8")
-    for contract in ("WaitForSecondsRealtime", "Time.unscaledDeltaTime", "button.interactable = false", "button.interactable = true"):
+    for contract in ("WaitForSecondsRealtime", "Time.unscaledDeltaTime", "IsComplete", "graphic.raycastTarget"):
         if contract not in reveal_source:
             errors.append(f"UI entrance animation missing contract: {contract}")
+    if "button.interactable = false" in reveal_source or "button.interactable = true" in reveal_source:
+        errors.append("UI entrance animation must not block interaction while the menu appears")
 
 feedback_file = root / "Assets/Aether/Scripts/Runtime/AetherUIButtonFeedback.cs"
 if feedback_file.exists():
