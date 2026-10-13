@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Fast source-structure checks for Aether; not a substitute for Unity compilation."""
 import json
+import re
 from pathlib import Path
 import sys
 
@@ -27,6 +28,26 @@ required = [
     "Assets/Aether/Scripts/Runtime/RtlText.cs",
 ]
 errors = []
+
+# Stable Unity asset identity matters for reliable imports and scene references.
+guid_paths = {}
+for meta in root.rglob("*.meta"):
+    match = re.search(r"^guid:\s*([0-9a-fA-F]{32})\s*$", meta.read_text(encoding="utf-8"), re.MULTILINE)
+    if not match:
+        errors.append(f"Missing or malformed Unity GUID in {meta.relative_to(root)}")
+        continue
+    guid = match.group(1).lower()
+    previous = guid_paths.get(guid)
+    if previous is not None:
+        errors.append(f"Duplicate Unity GUID {guid}: {previous} and {meta.relative_to(root)}")
+    else:
+        guid_paths[guid] = meta.relative_to(root).as_posix()
+
+for script in root.glob("Assets/**/*.cs"):
+    meta = Path(str(script) + ".meta")
+    if not meta.is_file():
+        errors.append(f"Missing stable Unity meta file for {script.relative_to(root)}")
+
 for item in required:
     if not (root / item).is_file():
         errors.append(f"Missing required file: {item}")
@@ -64,6 +85,9 @@ if bootstrap.exists():
     for contract in ("BuildMenuAtmosphere", "ShowControls", "ShowAbout", "ShowSettings", "ToggleMenuMotion", "ToggleTextSize", "ApplyMenuPreferences", "PlayerPrefs.Save()", "FontStyle.Bold", "Mathf.Clamp01(color.a)", "RevealMenuElement", "menuEntrancePlayed"):
         if contract not in source:
             errors.append(f"Main menu quality contract missing: {contract}")
+    for label in ('MakeButton("شروع بازی"', 'MakeButton("کنترل‌ها"', 'MakeButton("دربارهٔ بازی"', 'MakeButton("تنظیمات"'):
+        if label not in source:
+            errors.append(f"Main menu action missing: {label}")
     if 'MakeButton("بازگشت به هشدار"' in source:
         errors.append("Main menu must not expose the old return-to-warning placeholder action")
     if "text.color = new Color(1f, 1f, 1f," not in source:
