@@ -11,6 +11,9 @@ public sealed class AetherMenuAtmosphere : MaskableGraphic
 {
     private const int ArcSegments = 64;
     private const int MoteCount = 30;
+    private static readonly float[] FarRidge = { 0.24f, 0.31f, 0.26f, 0.39f, 0.29f, 0.33f, 0.23f, 0.37f, 0.28f, 0.34f, 0.25f, 0.31f, 0.23f };
+    private static readonly float[] MidRidge = { 0.12f, 0.18f, 0.14f, 0.23f, 0.16f, 0.20f, 0.13f, 0.24f, 0.15f, 0.19f, 0.12f, 0.17f, 0.11f };
+    private static readonly float[] NearRidge = { 0.075f, 0.11f, 0.085f, 0.13f, 0.095f, 0.12f, 0.08f, 0.14f, 0.09f, 0.12f, 0.075f, 0.10f, 0.07f };
     private float nextRefreshTime;
     private float phase;
 
@@ -63,14 +66,11 @@ public sealed class AetherMenuAtmosphere : MaskableGraphic
             128f, 194f, 1.0f, new Color(0.90f, 0.72f, 0.39f, 0.13f));
 
         DrawRiftCore(vh, portal, r.height);
-        DrawMountainLayer(vh, r,
-            new float[] { 0.24f, 0.31f, 0.26f, 0.39f, 0.29f, 0.33f, 0.23f, 0.37f, 0.28f, 0.34f, 0.25f, 0.31f, 0.23f },
+        DrawMountainLayer(vh, r, FarRidge,
             new Color(0.040f, 0.056f, 0.078f, 0.96f), new Color(0.026f, 0.037f, 0.057f, 1f));
-        DrawMountainLayer(vh, r,
-            new float[] { 0.12f, 0.18f, 0.14f, 0.23f, 0.16f, 0.20f, 0.13f, 0.24f, 0.15f, 0.19f, 0.12f, 0.17f, 0.11f },
+        DrawMountainLayer(vh, r, MidRidge,
             new Color(0.026f, 0.034f, 0.048f, 1f), new Color(0.014f, 0.021f, 0.034f, 1f));
-        DrawMountainLayer(vh, r,
-            new float[] { 0.075f, 0.11f, 0.085f, 0.13f, 0.095f, 0.12f, 0.08f, 0.14f, 0.09f, 0.12f, 0.075f, 0.10f, 0.07f },
+        DrawMountainLayer(vh, r, NearRidge,
             new Color(0.012f, 0.017f, 0.027f, 1f), new Color(0.006f, 0.010f, 0.018f, 1f));
 
         // A quiet, fine line anchors the menu side without boxing it in.
@@ -195,9 +195,9 @@ public sealed class AetherMenuAtmosphere : MaskableGraphic
     private static void AddTriangle(VertexHelper vh, Vector2 a, Vector2 b, Vector2 c, Color ca, Color cb, Color cc)
     {
         int index = vh.currentVertCount;
-        vh.AddVert(a, ca, Vector2.zero);
-        vh.AddVert(b, cb, Vector2.zero);
-        vh.AddVert(c, cc, Vector2.zero);
+        vh.AddVert(MakeVertex(a, ca));
+        vh.AddVert(MakeVertex(b, cb));
+        vh.AddVert(MakeVertex(c, cc));
         vh.AddTriangle(index, index + 1, index + 2);
     }
 
@@ -205,11 +205,19 @@ public sealed class AetherMenuAtmosphere : MaskableGraphic
         Color ca, Color cb, Color cc, Color cd)
     {
         int index = vh.currentVertCount;
-        vh.AddVert(a, ca, Vector2.zero);
-        vh.AddVert(b, cb, Vector2.zero);
-        vh.AddVert(c, cc, Vector2.zero);
-        vh.AddVert(d, cd, Vector2.zero);
+        vh.AddVert(MakeVertex(a, ca));
+        vh.AddVert(MakeVertex(b, cb));
+        vh.AddVert(MakeVertex(c, cc));
+        vh.AddVert(MakeVertex(d, cd));
         vh.AddTriangle(index, index + 1, index + 2);
         vh.AddTriangle(index, index + 2, index + 3);
+    }
+
+    private static UIVertex MakeVertex(Vector2 position, Color tint)
+    {
+        UIVertex vertex = UIVertex.simpleVert;
+        vertex.position = position;
+        vertex.color = tint;
+        return vertex;
     }
 }
