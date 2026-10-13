@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.UI;
+using System.Collections;
 
 /// <summary>Builds the first playable graybox slice; production art and verified RTL fonts are separate milestones.</summary>
 [DisallowMultipleComponent]
@@ -12,6 +14,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private Canvas canvas;
     private Font font;
     private GameObject worldRoot;
+    private bool warningVisible;
 
     private void Awake()
     {
@@ -21,7 +24,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         font = Resources.GetBuiltinResource<Font>("Arial.ttf");
         EnsureCamera();
         BuildCanvas();
-        ShowWarning();
+        ShowStudioIntro();
     }
 
     private void EnsureCamera()
@@ -49,21 +52,93 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.matchWidthOrHeight = 0.5f;
         if (FindObjectOfType<EventSystem>() == null)
-            new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+            var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+        eventSystemObject.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
+    }
+
+
+    private void ShowStudioIntro()
+    {
+        ClearUI();
+        Panel("StudioIntroBackdrop", Ink, Vector2.zero, Vector2.one);
+        Sprite logoSprite = Resources.Load<Sprite>("Brand/VarellonLogo");
+        if (logoSprite != null)
+        {
+            var logoObject = new GameObject("Varellon Logo", typeof(RectTransform), typeof(Image));
+            logoObject.transform.SetParent(canvas.transform, false);
+            var logoRect = logoObject.GetComponent<RectTransform>();
+            logoRect.anchorMin = new Vector2(0.5f, 0.5f);
+            logoRect.anchorMax = new Vector2(0.5f, 0.5f);
+            logoRect.sizeDelta = new Vector2(340f, 600f);
+            var logoImage = logoObject.GetComponent<Image>();
+            logoImage.sprite = logoSprite;
+            logoImage.preserveAspect = true;
+            logoImage.raycastTarget = false;
+
+            var glintObject = new GameObject("Single Logo Glint", typeof(RectTransform), typeof(Image));
+            glintObject.transform.SetParent(canvas.transform, false);
+            var glintRect = glintObject.GetComponent<RectTransform>();
+            glintRect.anchorMin = new Vector2(0.5f, 0.5f);
+            glintRect.anchorMax = new Vector2(0.5f, 0.5f);
+            glintRect.sizeDelta = new Vector2(4f, 300f);
+            glintRect.localRotation = Quaternion.Euler(0f, 0f, 18f);
+            var glintImage = glintObject.GetComponent<Image>();
+            glintImage.color = new Color(Gold.r, Gold.g, Gold.b, 0f);
+            glintImage.raycastTarget = false;
+            StartCoroutine(PlayLogoGlint(glintRect, glintImage));
+        }
+        else
+        {
+            Label("VARELLON", 52, Gold, new Vector2(0.5f, 0.5f), new Vector2(0.7f, 0.16f), TextAnchor.MiddleCenter);
+        }
+        StartCoroutine(ShowWarningAfterIntro());
+    }
+
+    private IEnumerator PlayLogoGlint(RectTransform glint, Image image)
+    {
+        yield return new WaitForSecondsRealtime(0.35f);
+        const float duration = 1.15f;
+        float elapsed = 0f;
+        while (elapsed < duration && glint != null)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(elapsed / duration);
+            glint.anchoredPosition = new Vector2(Mathf.Lerp(-260f, 260f, t), 0f);
+            float intensity = Mathf.Sin(t * Mathf.PI);
+            image.color = new Color(Gold.r, Gold.g, Gold.b, intensity * 0.58f);
+            yield return null;
+        }
+        if (image != null) image.color = new Color(Gold.r, Gold.g, Gold.b, 0f);
+    }
+
+    private IEnumerator ShowWarningAfterIntro()
+    {
+        yield return new WaitForSecondsRealtime(2.1f);
+        ShowWarning();
+    }
+
+    private IEnumerator DismissWarningAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(7f);
+        if (warningVisible) ShowMenu();
     }
 
     private void ShowWarning()
     {
+        warningVisible = true;
         ClearUI();
         Panel("WarningPanel", Ink, Vector2.zero, Vector2.one);
         Label("هشدار", 54, Gold, new Vector2(0.5f, 0.83f), new Vector2(0.8f, 0.14f), TextAnchor.MiddleCenter);
         Label("این بازی در حال توسعه است. پیشرفت بازی ممکن است تغییر کند و برخی بخش‌ها هنوز نهایی نشده‌اند.\nبرای تجربه بهتر، دستگاه خود را به‌روز نگه دارید و در محیط امن بازی کنید.\nبا ادامه دادن، وارد نسخه آزمایشی Aether می‌شوید.", 27, Color.white,
             new Vector2(0.16f, 0.30f), new Vector2(0.68f, 0.43f), TextAnchor.MiddleCenter);
         MakeButton("ادامه", new Vector2(0.5f, 0.13f), new Vector2(0.22f, 0.09f), ShowMenu, true);
+        StopCoroutine(nameof(DismissWarningAfterDelay));
+        StartCoroutine(DismissWarningAfterDelay());
     }
 
     private void ShowMenu()
     {
+        warningVisible = false;
         ClearUI();
         Panel("MenuBackdrop", Ink, Vector2.zero, Vector2.one);
         Label("V A R E L L O N", 23, Muted, new Vector2(0.5f, 0.82f), new Vector2(0.7f, 0.07f), TextAnchor.MiddleCenter);
