@@ -11,6 +11,10 @@ required = [
     "Assets/Aether/Scripts/Runtime/AetherGameBootstrap.cs",
     "Assets/Aether/Scripts/Runtime/AetherParallelogramGraphic.cs",
     "Assets/Aether/Scripts/Runtime/AetherParallelogramGraphic.cs.meta",
+    "Assets/Aether/Scripts/Runtime/AetherMenuAtmosphere.cs",
+    "Assets/Aether/Scripts/Runtime/AetherMenuAtmosphere.cs.meta",
+    "Assets/Aether/Scripts/Runtime/AetherUIReveal.cs",
+    "Assets/Aether/Scripts/Runtime/AetherUIReveal.cs.meta",
     "Assets/Aether/Scripts/Runtime/TouchHoldButton.cs",
     "Assets/Aether/Scripts/Runtime/PrototypePlayerMotor.cs",
     "Assets/Aether/Editor/AetherProjectSetup.cs",
@@ -54,6 +58,27 @@ if bootstrap.exists():
         errors.append("Warning screen must have a non-blocking automatic transition")
     if "button.targetGraphic = plate" not in source:
         errors.append("Menu buttons must use the shaped menu plate as their raycast target")
+    for contract in ("BuildMenuAtmosphere", "ShowControls", "ShowAbout", "ShowMenuInfoScreen", "FontStyle.Bold", "Mathf.Clamp01(color.a)", "RevealMenuElement"):
+        if contract not in source:
+            errors.append(f"Main menu quality contract missing: {contract}")
+    if 'MakeButton("بازگشت به هشدار"' in source:
+        errors.append("Main menu must not expose the old return-to-warning placeholder action")
+    if "text.color = new Color(1f, 1f, 1f," not in source:
+        errors.append("All UI text must use white with opacity as its hierarchy signal")
+
+atmosphere_file = root / "Assets/Aether/Scripts/Runtime/AetherMenuAtmosphere.cs"
+if atmosphere_file.exists():
+    atmosphere_source = atmosphere_file.read_text(encoding="utf-8")
+    for contract in ("SetVerticesDirty", "Time.unscaledTime", "AddEllipseArc", "DrawMotes", "DrawMountainLayer", "DrawRiftCore"):
+        if contract not in atmosphere_source:
+            errors.append(f"Animated menu atmosphere missing contract: {contract}")
+
+reveal_file = root / "Assets/Aether/Scripts/Runtime/AetherUIReveal.cs"
+if reveal_file.exists():
+    reveal_source = reveal_file.read_text(encoding="utf-8")
+    for contract in ("WaitForSecondsRealtime", "Time.unscaledDeltaTime", "button.interactable = false", "button.interactable = true"):
+        if contract not in reveal_source:
+            errors.append(f"UI entrance animation missing contract: {contract}")
 
 plate_file = root / "Assets/Aether/Scripts/Runtime/AetherParallelogramGraphic.cs"
 if plate_file.exists():
