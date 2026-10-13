@@ -158,7 +158,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         rect.anchorMax = center + dimensions * 0.5f;
         rect.offsetMin = Vector2.zero; rect.offsetMax = Vector2.zero;
         var text = go.GetComponent<Text>();
-        text.text = value; text.font = font; text.fontSize = size; text.color = color;
+        text.text = value; text.font = font; text.fontSize = size; text.color = color; text.raycastTarget = false;
         text.alignment = alignment; text.horizontalOverflow = HorizontalWrapMode.Wrap;
         text.verticalOverflow = VerticalWrapMode.Overflow;
         return text;
