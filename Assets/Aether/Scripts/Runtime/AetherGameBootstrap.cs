@@ -14,6 +14,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private Canvas canvas;
     private Font font;
     private GameObject worldRoot;
+    private static Sprite cachedWhiteSprite;
     private bool warningVisible;
 
     private void Awake()
@@ -207,11 +208,13 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 
     private static Sprite WhiteSprite()
     {
+        if (cachedWhiteSprite != null) return cachedWhiteSprite;
         var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
         texture.SetPixel(0, 0, Color.white);
         texture.Apply();
         texture.name = "Aether Runtime Pixel";
-        return Sprite.Create(texture, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+        cachedWhiteSprite = Sprite.Create(texture, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+        return cachedWhiteSprite;
     }
 
     private void Panel(string name, Color color, Vector2 anchorMin, Vector2 anchorMax)
