@@ -9,6 +9,8 @@ required = [
     "ProjectSettings/ProjectVersion.txt",
     "Packages/manifest.json",
     "Assets/Aether/Scripts/Runtime/AetherGameBootstrap.cs",
+    "Assets/Aether/Scripts/Runtime/AetherParallelogramGraphic.cs",
+    "Assets/Aether/Scripts/Runtime/AetherParallelogramGraphic.cs.meta",
     "Assets/Aether/Scripts/Runtime/TouchHoldButton.cs",
     "Assets/Aether/Scripts/Runtime/PrototypePlayerMotor.cs",
     "Assets/Aether/Editor/AetherProjectSetup.cs",
@@ -50,6 +52,15 @@ if bootstrap.exists():
         errors.append("Warning screen is missing its save-compatibility notice")
     if "WaitForSecondsRealtime(7f)" not in source:
         errors.append("Warning screen must have a non-blocking automatic transition")
+    if "button.targetGraphic = plate" not in source:
+        errors.append("Menu buttons must use the shaped menu plate as their raycast target")
+
+plate_file = root / "Assets/Aether/Scripts/Runtime/AetherParallelogramGraphic.cs"
+if plate_file.exists():
+    plate_source = plate_file.read_text(encoding="utf-8")
+    for contract in ("OnPopulateMesh", "public override bool Raycast", "skewRatio", "outlineTint", "ScreenPointToLocalPointInRectangle"):
+        if contract not in plate_source:
+            errors.append(f"Shaped menu plate missing contract: {contract}")
 
 # Enforce key touch-control contracts and normalized hitbox separation.
 touch_file = root / "Assets/Aether/Scripts/Runtime/TouchHoldButton.cs"
