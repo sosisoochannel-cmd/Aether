@@ -13,6 +13,7 @@ required = [
     "Assets/Aether/Scripts/Runtime/PrototypePlayerMotor.cs",
     "Assets/Aether/Editor/AetherProjectSetup.cs",
     "docs/ARCHITECTURE.md",
+    "docs/TOUCH_CONTROLS.md",
 ]
 errors = []
 for item in required:
@@ -33,6 +34,12 @@ if manifest.exists():
     except json.JSONDecodeError as exc:
         errors.append(f"Invalid Packages/manifest.json: {exc}")
 
+bootstrap = root / "Assets/Aether/Scripts/Runtime/AetherGameBootstrap.cs"
+if bootstrap.exists():
+    source = bootstrap.read_text(encoding="utf-8")
+    if "eventSystemObject" in source and "if (FindObjectOfType<EventSystem>() == null)\\n            var eventSystemObject" in source:
+        errors.append("Malformed unbraced EventSystem initialization")
+
 for script in root.glob("Assets/**/*.cs"):
     source = script.read_text(encoding="utf-8")
     if "\x00" in source:
@@ -44,4 +51,4 @@ if errors:
     print("\n".join("ERROR: " + e for e in errors))
     sys.exit(1)
 print(f"Source structure checks passed for {len(required)} required files.")
-print("Note: Unity compilation, play-mode behavior, RTL rendering, and Android builds are not tested by this script.")
+print("Note: Unity compilation, play-mode behavior, pixel hit-testing, RTL rendering, and Android builds are not tested by this script.")

@@ -52,9 +52,19 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         scaler.referenceResolution = new Vector2(1920, 1080);
         scaler.matchWidthOrHeight = 0.5f;
-        if (FindObjectOfType<EventSystem>() == null)
+        EventSystem eventSystem = FindObjectOfType<EventSystem>();
+        if (eventSystem == null)
+        {
             var eventSystemObject = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
-        eventSystemObject.GetComponent<InputSystemUIInputModule>().AssignDefaultActions();
+            eventSystem = eventSystemObject.GetComponent<EventSystem>();
+        }
+
+        var inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
+        if (inputModule == null)
+        {
+            inputModule = eventSystem.gameObject.AddComponent<InputSystemUIInputModule>();
+            inputModule.AssignDefaultActions();
+        }
     }
 
 
@@ -173,7 +183,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     {
         Panel("GameplayHUD", new Color(0f, 0f, 0f, 0.15f), Vector2.zero, Vector2.one);
         Label("AETHER  /  GREENWAY TEST", 19, Gold, new Vector2(0.5f, 0.94f), new Vector2(0.7f, 0.06f), TextAnchor.MiddleCenter);
-        Label("MOVE • JUMP • EXPLORE", 18, Muted, new Vector2(0.5f, 0.88f), new Vector2(0.7f, 0.05f), TextAnchor.MiddleCenter);
+        Label("MOVE  •  JUMP  •  EXPLORE", 18, Muted, new Vector2(0.5f, 0.88f), new Vector2(0.7f, 0.05f), TextAnchor.MiddleCenter);
         MakeTouchButton("◀", new Vector2(0.09f, 0.16f), new Vector2(0.105f, 0.16f), TouchHoldButton.Action.Left);
         MakeTouchButton("▶", new Vector2(0.215f, 0.16f), new Vector2(0.105f, 0.16f), TouchHoldButton.Action.Right);
         MakeTouchButton("JUMP", new Vector2(0.89f, 0.17f), new Vector2(0.14f, 0.19f), TouchHoldButton.Action.Jump);
@@ -182,7 +192,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 
     private void ReturnToMenu()
     {
-        TouchHoldButton.ResetState();
+        TouchHoldButton.ResetAll();
         if (worldRoot != null) Destroy(worldRoot);
         if (Camera.main != null)
         {
@@ -224,7 +234,9 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         var rect = go.GetComponent<RectTransform>();
         rect.anchorMin = anchorMin; rect.anchorMax = anchorMax;
         rect.offsetMin = Vector2.zero; rect.offsetMax = Vector2.zero;
-        go.GetComponent<Image>().color = color;
+        var image = go.GetComponent<Image>();
+        image.color = color;
+        image.raycastTarget = false;
     }
 
     private Text Label(string value, int size, Color color, Vector2 center, Vector2 dimensions, TextAnchor alignment)
@@ -267,9 +279,20 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         rect.anchorMin = center - dimensions * 0.5f; rect.anchorMax = center + dimensions * 0.5f;
         rect.offsetMin = Vector2.zero; rect.offsetMax = Vector2.zero;
         go.GetComponent<Image>().color = new Color(Gold.r, Gold.g, Gold.b, 0.16f);
-        go.GetComponent<TouchHoldButton>().Configure(action);
+        var touch = go.GetComponent<TouchHoldButton>();
+        touch.Configure(action);
         var label = Label(title, title == "JUMP" ? 24 : 42, Gold, center, dimensions * 0.9f, TextAnchor.MiddleCenter);
         label.transform.SetAsLastSibling();
+    }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (!hasFocus) TouchHoldButton.ResetAll();
+    }
+
+    private void OnApplicationPause(bool paused)
+    {
+        if (paused) TouchHoldButton.ResetAll();
     }
 
     private void ClearUI()
