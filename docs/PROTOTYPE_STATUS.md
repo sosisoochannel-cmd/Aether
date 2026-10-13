@@ -1,8 +1,10 @@
 # First playable slice — status
 
 ## Implemented in source
-- Landscape-first boot flow: warning, menu, then movement room.
+- Landscape-first flow: Varellon logo reveal, minimal Persian warning, black-and-gold menu, then the movement room.
 - Restrained black/gold UI styling.
+- Logo presentation in source: a short fade/scale settle and one softened gold glint, with no repeated flashes or extra logo geometry.
+- Warning copy expanded to explain the prototype state, possible changes, and save-compatibility risks; the screen has no visible countdown/progress bar/continue button and advances automatically.
 - Distinct press-and-hold left/right touch controls and a jump button with pointer-ID tracking, simultaneous-finger support, pressed-state feedback, and focus-loss reset.
 - Safe-area-aware layout, exact individual button rectangles, jump buffering, coyote time, acceleration/deceleration, air steering, variable jump height, and stronger fall gravity.
 - Keyboard movement support when the Input System package is active.
