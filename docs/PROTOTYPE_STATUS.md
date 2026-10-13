@@ -2,8 +2,12 @@
 
 ## Implemented in source
 - Landscape-first flow: Varellon logo reveal, minimal Persian warning, black-and-gold menu, then the movement room.
-- Restrained black/gold UI styling.
-- Reusable parallelogram menu plates with a thin gold outline; pointer hit-testing follows the visible slanted silhouette instead of accepting transparent corner taps.
+- Main-menu refresh: all game UI text is white; hierarchy comes from weight, size, opacity, and spacing, never gold or gray text.
+- Reusable slanted menu plates with a fine gold border; the hit test matches the visible polygon rather than the surrounding rectangle.
+- Animated procedural backdrop with layered dark silhouettes, a restrained rift/arc composition, a slow core glow, and low-density drifting motes; the mesh refresh is throttled rather than regenerated every frame.
+- Staggered menu text/button entrances use unscaled time, and buttons stay non-interactive until their reveal finishes.
+- Menu now offers working Start, Controls, and About destinations rather than linking back to the warning screen.
+- Typography uses Unity's bold legacy-text style, subtle text shadow for larger labels, and white opacity levels for hierarchy. Persian/Arabic shaping still requires rendered device validation.
 - Logo presentation in source: a short fade/scale settle and one softened gold glint, with no repeated flashes or extra logo geometry.
 - Warning copy expanded to explain the prototype state, possible changes, and save-compatibility risks; the screen has no visible countdown/progress bar/continue button and advances automatically.
 - Distinct press-and-hold left/right touch controls and a jump button with pointer-ID tracking, simultaneous-finger support, pressed-state feedback, and focus-loss reset.
