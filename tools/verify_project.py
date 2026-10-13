@@ -150,6 +150,25 @@ if motor_file.exists():
         if contract not in motor_source:
             errors.append(f"Movement controller missing mechanic: {contract}")
 
+# Main-menu actions are deliberately spaced to keep individual tap targets distinct.
+menu_rectangles = {
+    "start": (0.22 - 0.30 / 2, 0.405 - 0.095 / 2, 0.22 + 0.30 / 2, 0.405 + 0.095 / 2),
+    "controls": (0.125 - 0.18 / 2, 0.275 - 0.075 / 2, 0.125 + 0.18 / 2, 0.275 + 0.075 / 2),
+    "about": (0.36 - 0.22 / 2, 0.275 - 0.075 / 2, 0.36 + 0.22 / 2, 0.275 + 0.075 / 2),
+    "settings": (0.22 - 0.30 / 2, 0.16 - 0.072 / 2, 0.22 + 0.30 / 2, 0.16 + 0.072 / 2),
+    "prototype_note": (0.205 - 0.36 / 2, 0.065 - 0.035 / 2, 0.205 + 0.36 / 2, 0.065 + 0.035 / 2),
+}
+for name, (x0, y0, x1, y1) in menu_rectangles.items():
+    if x0 < 0 or y0 < 0 or x1 > 1 or y1 > 1:
+        errors.append(f"Main-menu element {name} leaves normalized screen bounds")
+menu_names = list(menu_rectangles)
+for i, a in enumerate(menu_names):
+    ax0, ay0, ax1, ay1 = menu_rectangles[a]
+    for b in menu_names[i + 1:]:
+        bx0, by0, bx1, by1 = menu_rectangles[b]
+        if min(ax1, bx1) > max(ax0, bx0) and min(ay1, by1) > max(ay0, by0):
+            errors.append(f"Main-menu interactive elements overlap: {a} and {b}")
+
 # Normalized rectangles must remain disjoint so neighboring controls cannot steal touches.
 rectangles = {
     "left": (0.09 - 0.105 / 2, 0.16 - 0.16 / 2, 0.09 + 0.105 / 2, 0.16 + 0.16 / 2),
