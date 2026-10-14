@@ -21,7 +21,7 @@ These are design patterns, not a request to copy another game's art, exact layou
 - Main title and UI text normalize to white RGB; opacity is used for secondary information.
 - Text uses the bold legacy UI style, a restrained shadow on larger lines, and staggered fade/slide reveals.
 - Button plates use a custom slanted outline, with raycasting matched to the visible polygon.
-- Buttons have a low-amplitude focus/press scale response. Their hitboxes stay disabled while fully invisible, then become active once the plate is visibly entering; reduced-motion mode shows them immediately.
+- Buttons have a low-amplitude focus/press scale response. While fully invisible they are both non-raycastable and non-interactable, so neither touch/mouse nor keyboard/gamepad can trigger hidden actions; they activate once the plate is visibly entering. Reduced-motion mode shows them immediately.
 - Start, Controls, Settings, and About each have real destinations; the old “return to warning” menu action has been removed.
 - Keyboard/gamepad navigation begins with a focused primary action after it becomes visible; Settings and information screens also restore a sensible focused action. Selection uses a quiet scale cue instead of a bright gold text state.
 - Settings persist a reduced-motion toggle and a modest UI text-size toggle using PlayerPrefs.
