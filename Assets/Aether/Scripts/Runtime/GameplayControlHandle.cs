@@ -32,13 +32,13 @@ public sealed class GameplayControlHandle : MonoBehaviour, IBeginDragHandler, ID
         Vector2 anchor = ClampAnchor(new Vector2(PlayerPrefs.GetFloat(Key(id, "x"), defaultAnchor.x), PlayerPrefs.GetFloat(Key(id, "y"), defaultAnchor.y)));
         float scale = Mathf.Clamp(PlayerPrefs.GetFloat(Key(id, "scale"), 1f), 0.65f, 1.5f);
         rect.anchorMin = anchor; rect.anchorMax = anchor; rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = defaultSize * scale; rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = defaultSize; rect.localScale = Vector3.one * scale; rect.anchoredPosition = Vector2.zero;
     }
     private void ApplySavedLayout()
     {
         if (target == null) return;
         ApplyLayout(target, controlId, defaultAnchor, defaultSize);
-        scaleFactor = Mathf.Clamp(PlayerPrefs.GetFloat(Key(controlId, "scale"), 1f), 0.65f, 1.5f);
+        scaleFactor = Mathf.Clamp(PlayerPrefs.GetFloat(Key(controlId, "scale"), 1f), 0.65f, 1.5f);\n        target.localScale = Vector3.one * scaleFactor;
     }
 
     public void OnBeginDrag(PointerEventData eventData) { if (!editing || activePointer != int.MinValue) return; activePointer = eventData.pointerId; MoveToPointer(eventData); }
@@ -54,7 +54,7 @@ public sealed class GameplayControlHandle : MonoBehaviour, IBeginDragHandler, ID
         target.anchorMin = anchor; target.anchorMax = anchor; target.anchoredPosition = Vector2.zero;
     }
     private static Vector2 ClampAnchor(Vector2 anchor) => new Vector2(Mathf.Clamp(anchor.x, 0.07f, 0.93f), Mathf.Clamp(anchor.y, 0.10f, 0.90f));
-    public void ChangeScale(float delta) { if (!editing || target == null) return; scaleFactor = Mathf.Clamp(scaleFactor + delta, 0.65f, 1.5f); target.sizeDelta = defaultSize * scaleFactor; }
+    public void ChangeScale(float delta) { if (!editing || target == null) return; scaleFactor = Mathf.Clamp(scaleFactor + delta, 0.65f, 1.5f); target.localScale = Vector3.one * scaleFactor; }
 
     public static void SetSelectedControl(string id)
     {
