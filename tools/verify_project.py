@@ -173,7 +173,7 @@ for i, a in enumerate(menu_names):
 rectangles = {
     "joystick": (0.145 - 0.218 / 2, 0.205 - 0.218 / 2, 0.145 + 0.218 / 2, 0.205 + 0.218 / 2),
     "jump": (0.875 - 0.154 / 2, 0.19 - 0.154 / 2, 0.875 + 0.154 / 2, 0.19 + 0.154 / 2),
-    "menu": (0.955 - 0.076 / 2, 0.92 - 0.076 / 2, 0.955 + 0.076 / 2, 0.92 + 0.076 / 2),
+    "menu": (0.91 - 0.076 / 2, 0.90 - 0.076 / 2, 0.91 + 0.076 / 2, 0.90 + 0.076 / 2),
 }
 for name, (x0, y0, x1, y1) in rectangles.items():
     if x0 < 0 or y0 < 0 or x1 > 1 or y1 > 1:
@@ -216,7 +216,7 @@ if layout_file.exists():
 
 if bootstrap.exists():
     gameplay_source = bootstrap.read_text(encoding="utf-8")
-    for contract in ("GameplayControlSprite", "GameplayControls/", "ShowControlLayout", "ChangeSelectedControlScale", "SaveControlLayout", "ResetControlLayout", "Time.timeScale = 0f", "Time.timeScale = 1f"):
+    for contract in ("GameplayControlSprite", "GameplayControls/", "ShowControlLayout", "ChangeSelectedControlScale", "SaveControlLayout", "ResetControlLayout", "Time.timeScale = 0f", "Time.timeScale = 1f", 'pauseHandle.Configure("pause"'):
         if contract not in gameplay_source:
             errors.append(f"Gameplay controls implementation missing contract: {contract}")
     if 'MakeTouchButton("◀"' in gameplay_source or 'MakeTouchButton("▶"' in gameplay_source:
