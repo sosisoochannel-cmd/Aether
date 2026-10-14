@@ -736,20 +736,6 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         return button;
     }
 
-    private void MakeTouchButton(string title, Vector2 center, Vector2 dimensions, TouchHoldButton.Action action)
-    {
-        var go = new GameObject("Touch: " + title, typeof(RectTransform), typeof(Image), typeof(TouchHoldButton));
-        go.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
-        var rect = go.GetComponent<RectTransform>();
-        rect.anchorMin = center - dimensions * 0.5f; rect.anchorMax = center + dimensions * 0.5f;
-        rect.offsetMin = Vector2.zero; rect.offsetMax = Vector2.zero;
-        go.GetComponent<Image>().color = new Color(Gold.r, Gold.g, Gold.b, 0.16f);
-        var touch = go.GetComponent<TouchHoldButton>();
-        touch.Configure(action);
-        var label = Label(title, (title == "JUMP" || title == "پرش") ? 24 : 42, Gold, center, dimensions * 0.9f, TextAnchor.MiddleCenter);
-        label.transform.SetAsLastSibling();
-    }
-
     private static string PrepareText(string value)
     {
         if (string.IsNullOrEmpty(value) || !ContainsRtl(value)) return value;
