@@ -44,7 +44,7 @@ public sealed class PrototypePlayerMotor : MonoBehaviour
 
     private void Update()
     {
-        horizontalInput = (TouchHoldButton.LeftHeld ? -1f : 0f) + (TouchHoldButton.RightHeld ? 1f : 0f);
+        horizontalInput = FixedVirtualJoystick.HorizontalAxis;
 
 #if ENABLE_INPUT_SYSTEM
         var keyboard = Keyboard.current;
