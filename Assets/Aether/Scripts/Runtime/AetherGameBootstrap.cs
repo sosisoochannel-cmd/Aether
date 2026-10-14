@@ -379,7 +379,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private void ShowControls()
     {
         ShowMenuInfoScreen("کنترل‌ها",
-            "دکمهٔ سمت چپ برای حرکت به چپ است.\nدکمهٔ سمت راست برای حرکت به راست است.\nبرای پریدن، دکمهٔ پرش را لمس کن.\nمی‌توانی هنگام حرکت نیز بپری.");
+            "جوی‌استیک ثابت سمت چپ برای حرکت است؛ مرکز آن با لمس جابه‌جا نمی‌شود.\nبرای پریدن، نشان اختصاصی پرش را لمس کن.\nدر بازی می‌توانی از منوی مکث، چیدمان و اندازهٔ کنترل‌ها را تغییر بدهی.\nحرکت و پرش هم‌زمان پشتیبانی می‌شوند.");
     }
 
     private void ShowAbout()
@@ -434,20 +434,162 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         BuildGameplayUI();
     }
 
-    private void BuildGameplayUI()
+    private void BuildGameplayUI(bool editingLayout = false)
     {
-        Panel("GameplayHUD", new Color(0f, 0f, 0f, 0.15f), Vector2.zero, Vector2.one);
-        Label("AETHER  /  آزمایش منطقهٔ سبز", 19, Gold, new Vector2(0.5f, 0.94f), new Vector2(0.7f, 0.06f), TextAnchor.MiddleCenter);
-        Label("حرکت  •  پرش  •  کاوش", 18, Muted, new Vector2(0.5f, 0.88f), new Vector2(0.7f, 0.05f), TextAnchor.MiddleCenter);
-        MakeTouchButton("◀", new Vector2(0.09f, 0.16f), new Vector2(0.105f, 0.16f), TouchHoldButton.Action.Left);
-        MakeTouchButton("▶", new Vector2(0.215f, 0.16f), new Vector2(0.105f, 0.16f), TouchHoldButton.Action.Right);
-        MakeTouchButton("پرش", new Vector2(0.89f, 0.17f), new Vector2(0.14f, 0.19f), TouchHoldButton.Action.Jump);
-        MakeButton("منو", new Vector2(0.94f, 0.92f), new Vector2(0.08f, 0.07f), ReturnToMenu, false);
+        Panel("GameplayHUD", editingLayout ? new Color(0.01f, 0.012f, 0.018f, 0.76f) : new Color(0f, 0f, 0f, 0.15f), Vector2.zero, Vector2.one);
+        if (!editingLayout)
+        {
+            Label("AETHER  /  آزمایش منطقهٔ سبز", 19, Gold, new Vector2(0.5f, 0.94f), new Vector2(0.7f, 0.06f), TextAnchor.MiddleCenter);
+            Label("حرکت  •  پرش  •  کاوش", 18, Muted, new Vector2(0.5f, 0.88f), new Vector2(0.7f, 0.05f), TextAnchor.MiddleCenter);
+        }
+        else
+        {
+            Label("چیدمان کنترل‌ها", 34, Color.white, new Vector2(0.5f, 0.83f), new Vector2(0.42f, 0.09f), TextAnchor.MiddleCenter);
+            Label("کنترل را بکش تا جابه‌جا شود؛ با انتخاب کنترل و دکمه‌های اندازه، آن را تنظیم کن.", 19, Muted, new Vector2(0.5f, 0.76f), new Vector2(0.72f, 0.06f), TextAnchor.MiddleCenter);
+        }
+
+        var joystickObject = new GameObject("Gameplay Joystick Base", typeof(RectTransform), typeof(Image), typeof(FixedVirtualJoystick), typeof(GameplayControlHandle));
+        joystickObject.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
+        var joystickRect = joystickObject.GetComponent<RectTransform>();
+        GameplayControlHandle.ApplyLayout(joystickRect, "joystick", new Vector2(0.145f, 0.205f), new Vector2(218f, 218f));
+        var joystickImage = joystickObject.GetComponent<Image>();
+        joystickImage.sprite = Resources.Load<Sprite>("GameplayControls/JoystickBase");
+        joystickImage.preserveAspect = true;
+        joystickImage.color = Color.white;
+        joystickImage.raycastTarget = true;
+
+        var knobObject = new GameObject("Gameplay Joystick Knob", typeof(RectTransform), typeof(Image));
+        knobObject.transform.SetParent(joystickObject.transform, false);
+        var knobRect = knobObject.GetComponent<RectTransform>();
+        knobRect.anchorMin = new Vector2(0.5f, 0.5f);
+        knobRect.anchorMax = new Vector2(0.5f, 0.5f);
+        knobRect.pivot = new Vector2(0.5f, 0.5f);
+        knobRect.sizeDelta = new Vector2(92f, 92f);
+        knobRect.anchoredPosition = Vector2.zero;
+        var knobImage = knobObject.GetComponent<Image>();
+        knobImage.sprite = Resources.Load<Sprite>("GameplayControls/JoystickKnob");
+        knobImage.preserveAspect = true;
+        knobImage.raycastTarget = false;
+
+        var joystick = joystickObject.GetComponent<FixedVirtualJoystick>();
+        joystick.Configure(knobRect);
+        var joystickHandle = joystickObject.GetComponent<GameplayControlHandle>();
+        joystickHandle.Configure("joystick", new Vector2(0.145f, 0.205f), new Vector2(218f, 218f), editingLayout);
+        joystick.enabled = !editingLayout;
+        joystickHandle.enabled = editingLayout;
+
+        var jumpObject = new GameObject("Gameplay Jump Button", typeof(RectTransform), typeof(Image), typeof(TouchHoldButton), typeof(GameplayControlHandle));
+        jumpObject.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
+        var jumpRect = jumpObject.GetComponent<RectTransform>();
+        GameplayControlHandle.ApplyLayout(jumpRect, "jump", new Vector2(0.875f, 0.19f), new Vector2(154f, 154f));
+        var jumpImage = jumpObject.GetComponent<Image>();
+        jumpImage.sprite = Resources.Load<Sprite>("GameplayControls/Jump");
+        jumpImage.preserveAspect = true;
+        jumpImage.color = Color.white;
+        jumpImage.raycastTarget = true;
+        var jump = jumpObject.GetComponent<TouchHoldButton>();
+        jump.Configure(TouchHoldButton.Action.Jump);
+        jump.enabled = !editingLayout;
+        var jumpHandle = jumpObject.GetComponent<GameplayControlHandle>();
+        jumpHandle.Configure("jump", new Vector2(0.875f, 0.19f), new Vector2(154f, 154f), editingLayout);
+        jumpHandle.enabled = editingLayout;
+
+        if (!editingLayout)
+        {
+            var pauseObject = new GameObject("Gameplay Pause Button", typeof(RectTransform), typeof(Image), typeof(Button));
+            pauseObject.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
+            var pauseRect = pauseObject.GetComponent<RectTransform>();
+            pauseRect.anchorMin = new Vector2(0.955f, 0.92f);
+            pauseRect.anchorMax = new Vector2(0.955f, 0.92f);
+            pauseRect.sizeDelta = new Vector2(76f, 76f);
+            var pauseImage = pauseObject.GetComponent<Image>();
+            pauseImage.sprite = Resources.Load<Sprite>("GameplayControls/Pause");
+            pauseImage.preserveAspect = true;
+            pauseImage.color = Color.white;
+            var pauseButton = pauseObject.GetComponent<Button>();
+            pauseButton.targetGraphic = pauseImage;
+            pauseButton.onClick.AddListener(ShowGameplayPause);
+            var pauseColors = pauseButton.colors;
+            pauseColors.normalColor = Color.white;
+            pauseColors.highlightedColor = new Color(1f, 1f, 1f, 0.9f);
+            pauseColors.pressedColor = new Color(0.86f, 0.67f, 0.29f, 0.72f);
+            pauseButton.colors = pauseColors;
+        }
+        else
+        {
+            Button choose = MakeButton("انتخاب: جوی‌استیک", new Vector2(0.17f, 0.94f), new Vector2(0.20f, 0.075f), CycleLayoutSelection, false);
+            MakeButton("− اندازه", new Vector2(0.38f, 0.94f), new Vector2(0.15f, 0.075f), () => ChangeSelectedControlScale(-0.1f), false);
+            MakeButton("+ اندازه", new Vector2(0.54f, 0.94f), new Vector2(0.15f, 0.075f), () => ChangeSelectedControlScale(0.1f), false);
+            MakeButton("ذخیره", new Vector2(0.69f, 0.94f), new Vector2(0.12f, 0.075f), SaveControlLayout, true);
+            MakeButton("بازنشانی", new Vector2(0.82f, 0.94f), new Vector2(0.13f, 0.075f), ResetControlLayout, false);
+            MakeButton("لغو", new Vector2(0.94f, 0.94f), new Vector2(0.09f, 0.075f), ContinueGameplay, false);
+            GameplayControlHandle.SetSelectedControl(selectedLayoutControl);
+            if (choose != null) StartCoroutine(UpdateLayoutSelectionLabel(choose));
+        }
+    }
+
+    private IEnumerator UpdateLayoutSelectionLabel(Button button)
+    {
+        while (button != null && button.isActiveAndEnabled)
+        {
+            Text label = button.GetComponentInChildren<Text>();
+            if (label != null)
+                label.text = PrepareText(selectedLayoutControl == "joystick" ? "انتخاب: جوی‌استیک" : "انتخاب: پرش");
+            yield return new WaitForSecondsRealtime(0.2f);
+        }
+    }
+
+    private void CycleLayoutSelection()
+    {
+        selectedLayoutControl = selectedLayoutControl == "joystick" ? "jump" : "joystick";
+        GameplayControlHandle.SetSelectedControl(selectedLayoutControl);
+    }
+
+    private void ChangeSelectedControlScale(float delta)
+    {
+        GameplayControlHandle handle = GameplayControlHandle.Find(selectedLayoutControl);
+        if (handle != null) handle.ChangeScale(delta);
+    }
+
+    private void SaveControlLayout()
+    {
+        GameplayControlHandle.SaveAll();
+        ContinueGameplay();
+    }
+
+    private void ResetControlLayout()
+    {
+        GameplayControlHandle.ResetAll();
+        ShowControlLayout();
+    }
+
+    private void ShowControlLayout()
+    {
+        selectedLayoutControl = "joystick";
+        ClearUI();
+        BuildGameplayUI(true);
+    }
+
+    private void ShowGameplayPause()
+    {
+        ClearUI();
+        Panel("GameplayPauseBackdrop", new Color(0.01f, 0.012f, 0.018f, 0.86f), Vector2.zero, Vector2.one);
+        Label("مکث", 52, Color.white, new Vector2(0.5f, 0.72f), new Vector2(0.4f, 0.12f), TextAnchor.MiddleCenter);
+        MakeButton("ادامهٔ بازی", new Vector2(0.5f, 0.55f), new Vector2(0.28f, 0.09f), ContinueGameplay, true);
+        MakeButton("تنظیم چیدمان کنترل‌ها", new Vector2(0.5f, 0.40f), new Vector2(0.38f, 0.09f), ShowControlLayout, false);
+        MakeButton("بازگشت به منو", new Vector2(0.5f, 0.25f), new Vector2(0.28f, 0.09f), ReturnToMenu, false);
+    }
+
+    private void ContinueGameplay()
+    {
+        ClearUI();
+        BuildGameplayUI(false);
     }
 
     private void ReturnToMenu()
     {
         TouchHoldButton.ResetAll();
+        FixedVirtualJoystick.ResetAll();
         if (worldRoot != null) Destroy(worldRoot);
         if (Camera.main != null)
         {
