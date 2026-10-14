@@ -621,8 +621,28 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 
     private static Sprite GameplayControlSprite(string id)
     {
-        // Authored PNGs are imported as Sprite (2D and UI) assets; no runtime-drawn button art.
-        return Resources.Load<Sprite>("GameplayControls/" + id);
+        // Load a separately authored PNG texture and wrap it as a Sprite. Pixel art is never drawn in code.
+        Texture2D texture = Resources.Load<Texture2D>("GameplayControls/" + id);
+        if (texture == null) return null;
+        texture.wrapMode = TextureWrapMode.Clamp;
+        texture.filterMode = FilterMode.Bilinear;
+        switch (id)
+        {
+            case "JoystickBase":
+                if (joystickBaseSprite == null) joystickBaseSprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
+                return joystickBaseSprite;
+            case "JoystickKnob":
+                if (joystickKnobSprite == null) joystickKnobSprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
+                return joystickKnobSprite;
+            case "Jump":
+                if (jumpControlSprite == null) jumpControlSprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
+                return jumpControlSprite;
+            case "Pause":
+                if (pauseControlSprite == null) pauseControlSprite = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100f);
+                return pauseControlSprite;
+            default:
+                return null;
+        }
     }
 
     private static Sprite WhiteSprite()
