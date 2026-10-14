@@ -23,6 +23,7 @@ These are design patterns, not a request to copy another game's art, exact layou
 - Button plates use a custom slanted outline, with raycasting matched to the visible polygon.
 - Buttons have a low-amplitude focus/press scale response. Their hitboxes stay disabled while fully invisible, then become active once the plate is visibly entering; reduced-motion mode shows them immediately.
 - Start, Controls, Settings, and About each have real destinations; the old “return to warning” menu action has been removed.
+- Keyboard/gamepad navigation begins with a focused primary action after it becomes visible; Settings and information screens also restore a sensible focused action. Selection uses a quiet scale cue instead of a bright gold text state.
 - Settings persist a reduced-motion toggle and a modest UI text-size toggle using PlayerPrefs.
 
 ## Honest source-only score
@@ -45,7 +46,7 @@ Overall, this is a **provisional 7/10 source implementation**, not a final visua
 2. Capture landscape screenshots at 16:9 and ultrawide phone ratios; inspect the actual visual hierarchy and safe-area margins.
 3. Confirm every text glyph is white, secondary text remains readable, and bold weight does not crowd Persian/Arabic glyphs.
 4. Verify the rift/particle motion is subtle, does not flicker, and does not cause visible frame-time spikes.
-5. Test pointer-down/up order, taps throughout each reveal phase, repeated taps, and transitions between Start, Controls, Settings, About, and Menu.
+5. Test pointer-down/up order, taps throughout each reveal phase, repeated taps, keyboard/gamepad directional navigation, submit/back behavior, and transitions between Start, Controls, Settings, About, and Menu.
 6. Test Persian text with punctuation, mixed-script phrases, and multi-line wrapping on a physical Android device.
 7. Replace procedural silhouettes only if a deliberate art review shows that bespoke environment art would meaningfully improve the composition.
 
