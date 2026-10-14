@@ -341,7 +341,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             new Color(1f, 1f, 1f, 0.72f), new Vector2(0.25f, 0.69f),
             new Vector2(0.48f, 0.06f), TextAnchor.MiddleCenter);
         string motionText = menuMotionEnabled ? "حرکت پس‌زمینه: روشن" : "حرکت پس‌زمینه: خاموش";
-        MakeButton(motionText, new Vector2(0.23f, 0.53f),
+        Button motionButton = MakeButton(motionText, new Vector2(0.23f, 0.53f),
             new Vector2(0.34f, 0.078f), ToggleMenuMotion, false);
         string textText = uiTextScale > 1.05f ? "اندازهٔ نوشته: درشت" : "اندازهٔ نوشته: عادی";
         MakeButton(textText, new Vector2(0.23f, 0.41f),
@@ -349,6 +349,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         MakeButton("بازگشت به منو", new Vector2(0.23f, 0.25f),
             new Vector2(0.30f, 0.078f), ShowMenu, true);
         animateMenuUi = false;
+        StartCoroutine(FocusButtonWhenVisible(motionButton));
     }
 
     private void ToggleMenuMotion()
@@ -399,9 +400,10 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             new Vector2(0.42f, 0.12f), TextAnchor.MiddleCenter);
         Label(body, 24, new Color(1f, 1f, 1f, 0.82f), new Vector2(0.25f, 0.51f),
             new Vector2(0.48f, 0.34f), TextAnchor.MiddleCenter);
-        MakeButton("بازگشت به منو", new Vector2(0.23f, 0.25f),
+        Button backButton = MakeButton("بازگشت به منو", new Vector2(0.23f, 0.25f),
             new Vector2(0.29f, 0.078f), ShowMenu, false);
         animateMenuUi = false;
+        StartCoroutine(FocusButtonWhenVisible(backButton));
     }
 
     private void RevealMenuElement(GameObject target)
