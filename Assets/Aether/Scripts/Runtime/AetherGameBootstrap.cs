@@ -23,6 +23,10 @@ public sealed class AetherGameBootstrap : MonoBehaviour
     private GameObject worldRoot;
     private static Sprite cachedWhiteSprite;
     private static Sprite cachedGlintSprite;
+    private static Sprite joystickBaseSprite;
+    private static Sprite joystickKnobSprite;
+    private static Sprite jumpControlSprite;
+    private static Sprite pauseControlSprite;
     private bool warningVisible;
     private bool animateMenuUi;
     private bool menuEntrancePlayed;
