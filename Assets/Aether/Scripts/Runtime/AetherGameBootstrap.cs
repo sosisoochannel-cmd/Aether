@@ -499,19 +499,23 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         jumpHandle.Configure("jump", new Vector2(0.875f, 0.19f), new Vector2(154f, 154f), editingLayout);
         jumpHandle.enabled = editingLayout;
 
-        if (!editingLayout)
+        var pauseObject = new GameObject("Gameplay Pause Button", typeof(RectTransform), typeof(Image));
+        pauseObject.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
+        var pauseRect = pauseObject.GetComponent<RectTransform>();
+        GameplayControlHandle.ApplyLayout(pauseRect, "pause", new Vector2(0.91f, 0.90f), new Vector2(76f, 76f));
+        var pauseImage = pauseObject.GetComponent<Image>();
+        pauseImage.sprite = GameplayControlSprite("Pause");
+        pauseImage.preserveAspect = true;
+        pauseImage.color = Color.white;
+        if (editingLayout)
         {
-            var pauseObject = new GameObject("Gameplay Pause Button", typeof(RectTransform), typeof(Image), typeof(Button));
-            pauseObject.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
-            var pauseRect = pauseObject.GetComponent<RectTransform>();
-            pauseRect.anchorMin = new Vector2(0.955f, 0.92f);
-            pauseRect.anchorMax = new Vector2(0.955f, 0.92f);
-            pauseRect.sizeDelta = new Vector2(76f, 76f);
-            var pauseImage = pauseObject.GetComponent<Image>();
-            pauseImage.sprite = GameplayControlSprite("Pause");
-            pauseImage.preserveAspect = true;
-            pauseImage.color = Color.white;
-            var pauseButton = pauseObject.GetComponent<Button>();
+            var pauseHandle = pauseObject.AddComponent<GameplayControlHandle>();
+            pauseHandle.Configure("pause", new Vector2(0.91f, 0.90f), new Vector2(76f, 76f), true);
+            pauseHandle.enabled = true;
+        }
+        else
+        {
+            var pauseButton = pauseObject.AddComponent<Button>();
             pauseButton.targetGraphic = pauseImage;
             pauseButton.onClick.AddListener(ShowGameplayPause);
             var pauseColors = pauseButton.colors;
@@ -539,14 +543,14 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         {
             Text label = button.GetComponentInChildren<Text>();
             if (label != null)
-                label.text = PrepareText(selectedLayoutControl == "joystick" ? "انتخاب: جوی‌استیک" : "انتخاب: پرش");
+                label.text = PrepareText(selectedLayoutControl == "joystick" ? "انتخاب: جوی‌استیک" : (selectedLayoutControl == "jump" ? "انتخاب: پرش" : "انتخاب: مکث"));
             yield return new WaitForSecondsRealtime(0.2f);
         }
     }
 
     private void CycleLayoutSelection()
     {
-        selectedLayoutControl = selectedLayoutControl == "joystick" ? "jump" : "joystick";
+        selectedLayoutControl = selectedLayoutControl == "joystick" ? "jump" : (selectedLayoutControl == "jump" ? "pause" : "joystick");
         GameplayControlHandle.SetSelectedControl(selectedLayoutControl);
     }
 
