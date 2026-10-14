@@ -10,7 +10,8 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 [RequireComponent(typeof(RectTransform), typeof(Button))]
 public sealed class AetherUIButtonFeedback : MonoBehaviour,
-    IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler
+    IPointerDownHandler, IPointerUpHandler, IPointerEnterHandler, IPointerExitHandler,
+    ISelectHandler, IDeselectHandler
 {
     private readonly HashSet<int> pressedPointers = new HashSet<int>();
     private RectTransform rect;
@@ -19,6 +20,7 @@ public sealed class AetherUIButtonFeedback : MonoBehaviour,
     private AetherUIReveal reveal;
     private Vector3 baseScale;
     private bool pointerInside;
+    private bool selected;
 
     private void Awake()
     {
@@ -37,7 +39,7 @@ public sealed class AetherUIButtonFeedback : MonoBehaviour,
             rect.localScale = baseScale;
             return;
         }
-        float scale = pressedPointers.Count > 0 ? 0.975f : (pointerInside ? 1.012f : 1f);
+        float scale = pressedPointers.Count > 0 ? 0.975f : ((pointerInside || selected) ? 1.012f : 1f);
         float blend = 1f - Mathf.Exp(-16f * Time.unscaledDeltaTime);
         rect.localScale = Vector3.Lerp(rect.localScale, baseScale * scale, blend);
     }
@@ -62,10 +64,21 @@ public sealed class AetherUIButtonFeedback : MonoBehaviour,
         pointerInside = false;
     }
 
+    public void OnSelect(BaseEventData eventData)
+    {
+        selected = true;
+    }
+
+    public void OnDeselect(BaseEventData eventData)
+    {
+        selected = false;
+    }
+
     private void OnDisable()
     {
         pressedPointers.Clear();
         pointerInside = false;
+        selected = false;
         if (rect != null) rect.localScale = baseScale;
     }
 }
