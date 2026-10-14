@@ -416,6 +416,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 
     private void StartGame()
     {
+        Time.timeScale = 1f;
         ClearUI();
         if (worldRoot != null) Destroy(worldRoot);
         worldRoot = new GameObject("Aether Prototype World");
@@ -453,7 +454,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         var joystickRect = joystickObject.GetComponent<RectTransform>();
         GameplayControlHandle.ApplyLayout(joystickRect, "joystick", new Vector2(0.145f, 0.205f), new Vector2(218f, 218f));
         var joystickImage = joystickObject.GetComponent<Image>();
-        joystickImage.sprite = Resources.Load<Sprite>("GameplayControls/JoystickBase");
+        joystickImage.sprite = GameplayControlSprite("JoystickBase");
         joystickImage.preserveAspect = true;
         joystickImage.color = Color.white;
         joystickImage.raycastTarget = true;
@@ -467,7 +468,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         knobRect.sizeDelta = new Vector2(92f, 92f);
         knobRect.anchoredPosition = Vector2.zero;
         var knobImage = knobObject.GetComponent<Image>();
-        knobImage.sprite = Resources.Load<Sprite>("GameplayControls/JoystickKnob");
+        knobImage.sprite = GameplayControlSprite("JoystickKnob");
         knobImage.preserveAspect = true;
         knobImage.raycastTarget = false;
 
@@ -483,7 +484,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         var jumpRect = jumpObject.GetComponent<RectTransform>();
         GameplayControlHandle.ApplyLayout(jumpRect, "jump", new Vector2(0.875f, 0.19f), new Vector2(154f, 154f));
         var jumpImage = jumpObject.GetComponent<Image>();
-        jumpImage.sprite = Resources.Load<Sprite>("GameplayControls/Jump");
+        jumpImage.sprite = GameplayControlSprite("Jump");
         jumpImage.preserveAspect = true;
         jumpImage.color = Color.white;
         jumpImage.raycastTarget = true;
@@ -503,7 +504,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             pauseRect.anchorMax = new Vector2(0.955f, 0.92f);
             pauseRect.sizeDelta = new Vector2(76f, 76f);
             var pauseImage = pauseObject.GetComponent<Image>();
-            pauseImage.sprite = Resources.Load<Sprite>("GameplayControls/Pause");
+            pauseImage.sprite = GameplayControlSprite("Pause");
             pauseImage.preserveAspect = true;
             pauseImage.color = Color.white;
             var pauseButton = pauseObject.GetComponent<Button>();
@@ -572,6 +573,9 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 
     private void ShowGameplayPause()
     {
+        Time.timeScale = 0f;
+        TouchHoldButton.ResetAll();
+        FixedVirtualJoystick.ResetAll();
         ClearUI();
         Panel("GameplayPauseBackdrop", new Color(0.01f, 0.012f, 0.018f, 0.86f), Vector2.zero, Vector2.one);
         Label("مکث", 52, Color.white, new Vector2(0.5f, 0.72f), new Vector2(0.4f, 0.12f), TextAnchor.MiddleCenter);
@@ -582,12 +586,14 @@ public sealed class AetherGameBootstrap : MonoBehaviour
 
     private void ContinueGameplay()
     {
+        Time.timeScale = 1f;
         ClearUI();
         BuildGameplayUI(false);
     }
 
     private void ReturnToMenu()
     {
+        Time.timeScale = 1f;
         TouchHoldButton.ResetAll();
         FixedVirtualJoystick.ResetAll();
         if (worldRoot != null) Destroy(worldRoot);
@@ -611,6 +617,35 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         renderer.color = color;
         if (solid) go.AddComponent<BoxCollider2D>();
         return go;
+    }
+
+    private static Sprite GameplayControlSprite(string id)
+    {
+        if (gameplayControlAtlas == null)
+        {
+            gameplayControlAtlas = Resources.Load<Texture2D>("GameplayControls/GameplayControlsAtlas");
+            if (gameplayControlAtlas == null) return null;
+            gameplayControlAtlas.wrapMode = TextureWrapMode.Clamp;
+            gameplayControlAtlas.filterMode = FilterMode.Bilinear;
+        }
+
+        switch (id)
+        {
+            case "JoystickBase":
+                if (joystickBaseSprite == null) joystickBaseSprite = Sprite.Create(gameplayControlAtlas, new Rect(0f, 128f, 128f, 128f), new Vector2(0.5f, 0.5f), 100f);
+                return joystickBaseSprite;
+            case "JoystickKnob":
+                if (joystickKnobSprite == null) joystickKnobSprite = Sprite.Create(gameplayControlAtlas, new Rect(128f, 128f, 128f, 128f), new Vector2(0.5f, 0.5f), 100f);
+                return joystickKnobSprite;
+            case "Jump":
+                if (jumpControlSprite == null) jumpControlSprite = Sprite.Create(gameplayControlAtlas, new Rect(0f, 0f, 128f, 128f), new Vector2(0.5f, 0.5f), 100f);
+                return jumpControlSprite;
+            case "Pause":
+                if (pauseControlSprite == null) pauseControlSprite = Sprite.Create(gameplayControlAtlas, new Rect(128f, 0f, 128f, 128f), new Vector2(0.5f, 0.5f), 100f);
+                return pauseControlSprite;
+            default:
+                return null;
+        }
     }
 
     private static Sprite WhiteSprite()
