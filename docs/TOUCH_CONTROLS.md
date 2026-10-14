@@ -1,17 +1,17 @@
 # Gameplay touch controls
 
-## Visual assets
-Gameplay controls use individual authored PNG sprites in `Assets/Aether/Resources/GameplayControls/`:
-- `JoystickBase.png`: fixed circular base with Aether's engraved dark-metal and gold finish.
-- `JoystickKnob.png`: separate thumb-knob texture.
+## Authored image assets
+Each gameplay control uses its own high-resolution PNG Sprite in `Assets/Aether/Resources/GameplayControls/`:
+- `JoystickBase.png`: engraved fixed joystick base.
+- `JoystickKnob.png`: separate thumb knob.
 - `Jump.png`: dedicated jump emblem.
 - `Pause.png`: gameplay pause emblem.
 
-Import each PNG as a Sprite (2D and UI), preserve alpha, use Clamp wrap mode and Bilinear filtering, and keep Preserve Aspect enabled on the corresponding UI Image.
+These are authored image textures, not procedural line art. Import each PNG as **Sprite (2D and UI)**, with alpha transparency enabled, mipmaps disabled, Clamp wrap mode and Bilinear filtering. Preserve Aspect must be enabled on each UI Image.
 
 ## Input rules
 - Movement uses one **fixed-origin** virtual joystick. The base stays at its saved location; only the knob moves inside its travel radius.
-- The joystick owns one active pointer and applies a dead zone. Its base never teleports to a touch point.
+- The joystick owns one active pointer and applies a dead zone. It never teleports its base to a touch point.
 - Jump is a separate image-based control; its Image bounds are the touch target.
 - Movement and jump can be used at the same time.
 - Touch input resets when the app loses focus or pauses.
