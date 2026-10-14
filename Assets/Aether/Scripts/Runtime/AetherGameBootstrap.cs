@@ -280,7 +280,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             new Vector2(0.43f, 0.19f), TextAnchor.MiddleLeft);
         Label("سفری تازه از دل طبیعت ناشناخته", 25, Color.white,
             new Vector2(0.245f, 0.555f), new Vector2(0.46f, 0.075f), TextAnchor.MiddleRight);
-        MakeButton("شروع بازی", new Vector2(0.22f, 0.405f),
+        Button primaryMenuButton = MakeButton("شروع بازی", new Vector2(0.22f, 0.405f),
             new Vector2(0.30f, 0.095f), StartGame, true);
         MakeButton("کنترل‌ها", new Vector2(0.125f, 0.275f),
             new Vector2(0.18f, 0.075f), ShowControls, false);
@@ -293,6 +293,16 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             new Vector2(0.36f, 0.035f), TextAnchor.MiddleRight);
         animateMenuUi = false;
         menuEntrancePlayed = true;
+        StartCoroutine(FocusButtonWhenVisible(primaryMenuButton));
+    }
+
+    private IEnumerator FocusButtonWhenVisible(Button target)
+    {
+        if (target == null) yield break;
+        AetherUIReveal reveal = target.GetComponent<AetherUIReveal>();
+        while (target != null && reveal != null && !reveal.IsComplete) yield return null;
+        if (target != null && target.isActiveAndEnabled && EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(target.gameObject);
     }
 
     private void BuildMenuAtmosphere()
@@ -514,7 +524,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         return text;
     }
 
-    private void MakeButton(string title, Vector2 center, Vector2 dimensions, UnityEngine.Events.UnityAction action, bool primary)
+    private Button MakeButton(string title, Vector2 center, Vector2 dimensions, UnityEngine.Events.UnityAction action, bool primary)
     {
         var go = new GameObject("Button: " + title, typeof(RectTransform), typeof(AetherParallelogramGraphic), typeof(Button));
         go.transform.SetParent(safeAreaRoot != null ? safeAreaRoot : canvas.transform, false);
@@ -535,6 +545,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         colors.normalColor = new Color(1f, 1f, 1f, 0.88f);
         colors.highlightedColor = Color.white;
         colors.pressedColor = new Color(0.86f, 0.79f, 0.60f, 0.76f);
+        colors.selectedColor = colors.normalColor;
         button.colors = colors;
         button.onClick.AddListener(action);
         go.AddComponent<AetherUIButtonFeedback>();
@@ -542,6 +553,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         var label = Label(title, primary ? 27 : 22, primary ? Color.white : Muted,
             center, dimensions * 0.92f, TextAnchor.MiddleCenter);
         label.transform.SetAsLastSibling();
+        return button;
     }
 
     private void MakeTouchButton(string title, Vector2 center, Vector2 dimensions, TouchHoldButton.Action action)
