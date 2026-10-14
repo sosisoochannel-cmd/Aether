@@ -109,11 +109,11 @@ if atmosphere_file.exists():
 reveal_file = root / "Assets/Aether/Scripts/Runtime/AetherUIReveal.cs"
 if reveal_file.exists():
     reveal_source = reveal_file.read_text(encoding="utf-8")
-    for contract in ("WaitForSecondsRealtime", "Time.unscaledDeltaTime", "IsComplete", "graphic.raycastTarget", "MotionEnabled", "isButtonGraphic"):
+    for contract in ("WaitForSecondsRealtime", "Time.unscaledDeltaTime", "IsComplete", "graphic.raycastTarget", "MotionEnabled", "isButtonGraphic", "interactionEnabled", "wasInteractable"):
         if contract not in reveal_source:
             errors.append(f"UI entrance animation missing contract: {contract}")
-    if "button.interactable = false" in reveal_source or "button.interactable = true" in reveal_source:
-        errors.append("UI entrance animation must not block interaction while the menu appears")
+    if "button.interactable = false" not in reveal_source or "button.interactable = wasInteractable" not in reveal_source or "t >= 0.18f" not in reveal_source:
+        errors.append("Buttons must remain non-interactable until visibly entering, then restore their original interactable state")
     if "graphic.raycastTarget = isButtonGraphic" not in reveal_source:
         errors.append("UI reveal must restore the appropriate raycast target after reveal")
     if "graphic.raycastTarget = false" not in reveal_source or "t >= 0.18f" not in reveal_source:
