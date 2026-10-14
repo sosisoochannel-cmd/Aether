@@ -139,7 +139,7 @@ if plate_file.exists():
 touch_file = root / "Assets/Aether/Scripts/Runtime/TouchHoldButton.cs"
 if touch_file.exists():
     touch_source = touch_file.read_text(encoding="utf-8")
-    for contract in ("IPointerDownHandler", "IPointerUpHandler", "activePointers", "ResetAll"):
+    for contract in ("IPointerDownHandler", "IPointerUpHandler", "activePointers", "ResetAll", "JumpRequested", "JumpHeld"):
         if contract not in touch_source:
             errors.append(f"Touch control missing contract: {contract}")
 
@@ -171,10 +171,9 @@ for i, a in enumerate(menu_names):
 
 # Normalized rectangles must remain disjoint so neighboring controls cannot steal touches.
 rectangles = {
-    "left": (0.09 - 0.105 / 2, 0.16 - 0.16 / 2, 0.09 + 0.105 / 2, 0.16 + 0.16 / 2),
-    "right": (0.215 - 0.105 / 2, 0.16 - 0.16 / 2, 0.215 + 0.105 / 2, 0.16 + 0.16 / 2),
-    "jump": (0.89 - 0.14 / 2, 0.17 - 0.19 / 2, 0.89 + 0.14 / 2, 0.17 + 0.19 / 2),
-    "menu": (0.94 - 0.08 / 2, 0.92 - 0.07 / 2, 0.94 + 0.08 / 2, 0.92 + 0.07 / 2),
+    "joystick": (0.145 - 0.218 / 2, 0.205 - 0.218 / 2, 0.145 + 0.218 / 2, 0.205 + 0.218 / 2),
+    "jump": (0.875 - 0.154 / 2, 0.19 - 0.154 / 2, 0.875 + 0.154 / 2, 0.19 + 0.154 / 2),
+    "menu": (0.955 - 0.076 / 2, 0.92 - 0.076 / 2, 0.955 + 0.076 / 2, 0.92 + 0.076 / 2),
 }
 for name, (x0, y0, x1, y1) in rectangles.items():
     if x0 < 0 or y0 < 0 or x1 > 1 or y1 > 1:
@@ -198,4 +197,29 @@ if errors:
     print("\n".join("ERROR: " + e for e in errors))
     sys.exit(1)
 print(f"Source structure checks passed for {len(required)} required files.")
-print("Source contracts and normalized hitbox separation passed. Unity compilation, real pixel hit-testing, RTL rendering, and Android builds still require Unity/device QA.")
+
+joystick_file = root / "Assets/Aether/Scripts/Runtime/FixedVirtualJoystick.cs"
+if joystick_file.exists():
+    joystick_source = joystick_file.read_text(encoding="utf-8")
+    for contract in ("IPointerDownHandler", "IDragHandler", "IPointerUpHandler", "HorizontalAxis", "travelRadiusRatio", "ResetAll"):
+        if contract not in joystick_source:
+            errors.append(f"Fixed virtual joystick missing contract: {contract}")
+    if "activePointerId != int.MinValue" not in joystick_source or "knobRect.anchoredPosition = normalized * radius" not in joystick_source:
+        errors.append("Fixed joystick must retain one active pointer and move only the knob within the fixed base")
+
+layout_file = root / "Assets/Aether/Scripts/Runtime/GameplayControlHandle.cs"
+if layout_file.exists():
+    layout_source = layout_file.read_text(encoding="utf-8")
+    for contract in ("IBeginDragHandler", "IDragHandler", "IEndDragHandler", "PlayerPrefs.SetFloat", "PlayerPrefs.Save()", "ChangeScale", "ResetAll", "ClampAnchor"):
+        if contract not in layout_source:
+            errors.append(f"Gameplay control layout editor missing contract: {contract}")
+
+if bootstrap.exists():
+    gameplay_source = bootstrap.read_text(encoding="utf-8")
+    for contract in ("GameplayControlSprite", "GameplayControls/", "ShowControlLayout", "ChangeSelectedControlScale", "SaveControlLayout", "ResetControlLayout", "Time.timeScale = 0f", "Time.timeScale = 1f"):
+        if contract not in gameplay_source:
+            errors.append(f"Gameplay controls implementation missing contract: {contract}")
+    if 'MakeTouchButton("◀"' in gameplay_source or 'MakeTouchButton("▶"' in gameplay_source:
+        errors.append("Separate left/right gameplay buttons must be removed in favor of a fixed joystick")
+
+print("Source contracts and normalized hitbox separation passed. Unity compilation, Sprite import, real pixel hit-testing, RTL rendering, and Android builds still require Unity/device QA.")
