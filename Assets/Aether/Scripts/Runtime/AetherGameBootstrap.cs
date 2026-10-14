@@ -444,7 +444,7 @@ public sealed class AetherGameBootstrap : MonoBehaviour
         Panel("GameplayHUD", editingLayout ? new Color(0.01f, 0.012f, 0.018f, 0.76f) : new Color(0f, 0f, 0f, 0.15f), Vector2.zero, Vector2.one);
         if (!editingLayout)
         {
-            Label("AETHER  /  آزمایش منطقهٔ سبز", 19, Gold, new Vector2(0.5f, 0.94f), new Vector2(0.7f, 0.06f), TextAnchor.MiddleCenter);
+            Label("AETHER  /  آزمایش منطقهٔ سبز", 19, new Color(0.36f, 0.78f, 1f), new Vector2(0.5f, 0.94f), new Vector2(0.7f, 0.06f), TextAnchor.MiddleCenter);
             Label("حرکت  •  پرش  •  کاوش", 18, Muted, new Vector2(0.5f, 0.88f), new Vector2(0.7f, 0.05f), TextAnchor.MiddleCenter);
         }
         else
@@ -512,6 +512,15 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             var pauseHandle = pauseObject.AddComponent<GameplayControlHandle>();
             pauseHandle.Configure("pause", new Vector2(0.91f, 0.90f), new Vector2(76f, 76f), true);
             pauseHandle.enabled = true;
+
+            Button choose = MakeButton("انتخاب: جوی‌استیک", new Vector2(0.17f, 0.94f), new Vector2(0.20f, 0.075f), CycleLayoutSelection, false);
+            MakeButton("− اندازه", new Vector2(0.38f, 0.94f), new Vector2(0.15f, 0.075f), () => ChangeSelectedControlScale(-0.1f), false);
+            MakeButton("+ اندازه", new Vector2(0.54f, 0.94f), new Vector2(0.15f, 0.075f), () => ChangeSelectedControlScale(0.1f), false);
+            MakeButton("ذخیره", new Vector2(0.69f, 0.94f), new Vector2(0.12f, 0.075f), SaveControlLayout, true);
+            MakeButton("بازنشانی", new Vector2(0.82f, 0.94f), new Vector2(0.13f, 0.075f), ResetControlLayout, false);
+            MakeButton("لغو", new Vector2(0.94f, 0.94f), new Vector2(0.09f, 0.075f), ContinueGameplay, false);
+            GameplayControlHandle.SetSelectedControl(selectedLayoutControl);
+            if (choose != null) StartCoroutine(UpdateLayoutSelectionLabel(choose));
         }
         else
         {
@@ -521,19 +530,8 @@ public sealed class AetherGameBootstrap : MonoBehaviour
             var pauseColors = pauseButton.colors;
             pauseColors.normalColor = Color.white;
             pauseColors.highlightedColor = new Color(1f, 1f, 1f, 0.9f);
-            pauseColors.pressedColor = new Color(0.86f, 0.67f, 0.29f, 0.72f);
+            pauseColors.pressedColor = new Color(0.58f, 0.42f, 1f, 0.82f);
             pauseButton.colors = pauseColors;
-        }
-        else
-        {
-            Button choose = MakeButton("انتخاب: جوی‌استیک", new Vector2(0.17f, 0.94f), new Vector2(0.20f, 0.075f), CycleLayoutSelection, false);
-            MakeButton("− اندازه", new Vector2(0.38f, 0.94f), new Vector2(0.15f, 0.075f), () => ChangeSelectedControlScale(-0.1f), false);
-            MakeButton("+ اندازه", new Vector2(0.54f, 0.94f), new Vector2(0.15f, 0.075f), () => ChangeSelectedControlScale(0.1f), false);
-            MakeButton("ذخیره", new Vector2(0.69f, 0.94f), new Vector2(0.12f, 0.075f), SaveControlLayout, true);
-            MakeButton("بازنشانی", new Vector2(0.82f, 0.94f), new Vector2(0.13f, 0.075f), ResetControlLayout, false);
-            MakeButton("لغو", new Vector2(0.94f, 0.94f), new Vector2(0.09f, 0.075f), ContinueGameplay, false);
-            GameplayControlHandle.SetSelectedControl(selectedLayoutControl);
-            if (choose != null) StartCoroutine(UpdateLayoutSelectionLabel(choose));
         }
     }
 
