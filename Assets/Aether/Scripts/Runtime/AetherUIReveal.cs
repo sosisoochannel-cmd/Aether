@@ -12,6 +12,9 @@ public sealed class AetherUIReveal : MonoBehaviour
 {
     private RectTransform rect;
     private Graphic graphic;
+    private Button button;
+    private bool wasInteractable;
+    private bool interactionEnabled;
     private bool isButtonGraphic;
     private Color finalColor;
     private Vector2 finalPosition;
@@ -28,7 +31,9 @@ public sealed class AetherUIReveal : MonoBehaviour
         if (configured) return;
         rect = GetComponent<RectTransform>();
         graphic = GetComponent<Graphic>();
-        isButtonGraphic = GetComponent<Button>() != null;
+        button = GetComponent<Button>();
+        isButtonGraphic = button != null;
+        wasInteractable = button == null || button.interactable;
         if (rect == null || graphic == null) return;
 
         delay = Mathf.Max(0f, delaySeconds);
@@ -39,7 +44,9 @@ public sealed class AetherUIReveal : MonoBehaviour
         finalScale = rect.localScale;
         configured = true;
         IsComplete = false;
+        interactionEnabled = false;
         graphic.raycastTarget = false;
+        if (button != null) button.interactable = false;
 
         if (!MotionEnabled)
         {
@@ -47,6 +54,8 @@ public sealed class AetherUIReveal : MonoBehaviour
             rect.localScale = finalScale;
             graphic.color = finalColor;
             graphic.raycastTarget = isButtonGraphic;
+            if (button != null) button.interactable = wasInteractable;
+            interactionEnabled = true;
             IsComplete = true;
             return;
         }
@@ -73,8 +82,13 @@ public sealed class AetherUIReveal : MonoBehaviour
             Color c = finalColor;
             c.a = finalColor.a * eased;
             graphic.color = c;
-            // Do not expose an invisible hit target; enable the button once the plate is visibly entering.
-            if (isButtonGraphic && t >= 0.18f) graphic.raycastTarget = true;
+            // Neither pointer nor keyboard/gamepad navigation may activate an invisible plate.
+            if (isButtonGraphic && !interactionEnabled && t >= 0.18f)
+            {
+                graphic.raycastTarget = true;
+                if (button != null) button.interactable = wasInteractable;
+                interactionEnabled = true;
+            }
             yield return null;
         }
 
@@ -88,6 +102,8 @@ public sealed class AetherUIReveal : MonoBehaviour
             graphic.color = finalColor;
             graphic.raycastTarget = isButtonGraphic;
         }
+        if (button != null) button.interactable = wasInteractable;
+        interactionEnabled = true;
         IsComplete = true;
     }
 }
