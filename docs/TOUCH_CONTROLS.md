@@ -20,8 +20,8 @@ These are authored image textures, not procedural line art. Import each PNG as *
 
 ## PUBG-style control layout editor
 Open the gameplay pause button and choose **تنظیم چیدمان کنترل‌ها**.
-- Drag the joystick or jump control to move it.
-- Select joystick/jump, then use the size buttons to resize the selected control.
+- Drag the joystick, jump, or pause control to move it.
+- Cycle through joystick/jump/pause, then use the size buttons to resize the selected control.
 - Save persists normalized positions and scale in PlayerPrefs.
 - Reset returns to authored defaults. Cancel exits without saving current edits.
 - Position anchors are clamped away from the extreme screen edges to reduce system-gesture conflicts.
@@ -30,7 +30,7 @@ Open the gameplay pause button and choose **تنظیم چیدمان کنترل�
 Coordinates are normalized to the safe-area content (0..1).
 - Joystick center: (0.145, 0.205), size: 218×218 reference pixels.
 - Jump center: (0.875, 0.19), size: 154×154 reference pixels.
-- Pause center: (0.955, 0.92), size: 76×76 reference pixels.
+- Pause center: (0.91, 0.90), size: 76×76 reference pixels.
 
 ## Required manual QA before calling controls finished
 1. Drag the joystick and verify the base stays fixed while the knob moves.
