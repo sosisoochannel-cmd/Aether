@@ -53,7 +53,7 @@ public sealed class GameplayControlHandle : MonoBehaviour, IBeginDragHandler, ID
         Vector2 anchor = ClampAnchor(new Vector2((local.x - bounds.xMin) / bounds.width, (local.y - bounds.yMin) / bounds.height));
         target.anchorMin = anchor; target.anchorMax = anchor; target.anchoredPosition = Vector2.zero;
     }
-    private static Vector2 ClampAnchor(Vector2 anchor) => new Vector2(Mathf.Clamp(anchor.x, 0.07f, 0.93f), Mathf.Clamp(anchor.y, 0.10f, 0.90f));
+    private static Vector2 ClampAnchor(Vector2 anchor) => new Vector2(Mathf.Clamp(anchor.x, 0.11f, 0.89f), Mathf.Clamp(anchor.y, 0.16f, 0.84f));
     public void ChangeScale(float delta) { if (!editing || target == null) return; scaleFactor = Mathf.Clamp(scaleFactor + delta, 0.65f, 1.5f); target.localScale = Vector3.one * scaleFactor; }
 
     public static void SetSelectedControl(string id)
