@@ -38,7 +38,8 @@ public sealed class GameplayControlHandle : MonoBehaviour, IBeginDragHandler, ID
     {
         if (target == null) return;
         ApplyLayout(target, controlId, defaultAnchor, defaultSize);
-        scaleFactor = Mathf.Clamp(PlayerPrefs.GetFloat(Key(controlId, "scale"), 1f), 0.65f, 1.5f);\n        target.localScale = Vector3.one * scaleFactor;
+        scaleFactor = Mathf.Clamp(PlayerPrefs.GetFloat(Key(controlId, "scale"), 1f), 0.65f, 1.5f);
+        target.localScale = Vector3.one * scaleFactor;
     }
 
     public void OnBeginDrag(PointerEventData eventData) { if (!editing || activePointer != int.MinValue) return; activePointer = eventData.pointerId; MoveToPointer(eventData); }
