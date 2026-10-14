@@ -1,5 +1,6 @@
 name: Aether Android APK
 on:
+  pull_request:
   push:
     branches: ["foundation/**"]
   workflow_dispatch:
