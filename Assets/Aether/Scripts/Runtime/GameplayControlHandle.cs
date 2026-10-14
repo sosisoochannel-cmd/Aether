@@ -29,7 +29,7 @@ public sealed class GameplayControlHandle : MonoBehaviour, IBeginDragHandler, ID
     public static void ApplyLayout(RectTransform rect, string id, Vector2 defaultAnchor, Vector2 defaultSize)
     {
         if (rect == null) return;
-        Vector2 anchor = ClampAnchor(new Vector2(PlayerPrefs.GetFloat(Key(id, "x"), defaultAnchor.x), PlayerPrefs.GetFloat(Key(id, "y"), defaultAnchor.y)));
+        Vector2 anchor = ClampAnchor(new Vector2(PlayerPrefs.GetFloat(Key(id, "x"), defaultAnchor.x), PlayerPrefs.GetFloat(Key(id, "y"), defaultAnchor.y)), id);
         float scale = Mathf.Clamp(PlayerPrefs.GetFloat(Key(id, "scale"), 1f), 0.65f, 1.5f);
         rect.anchorMin = anchor; rect.anchorMax = anchor; rect.pivot = new Vector2(0.5f, 0.5f);
         rect.sizeDelta = defaultSize; rect.localScale = Vector3.one * scale; rect.anchoredPosition = Vector2.zero;
@@ -50,10 +50,15 @@ public sealed class GameplayControlHandle : MonoBehaviour, IBeginDragHandler, ID
         if (target == null || !(target.parent is RectTransform parent)) return;
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, eventData.position, eventData.pressEventCamera, out Vector2 local)) return;
         Rect bounds = parent.rect; if (bounds.width <= 1f || bounds.height <= 1f) return;
-        Vector2 anchor = ClampAnchor(new Vector2((local.x - bounds.xMin) / bounds.width, (local.y - bounds.yMin) / bounds.height));
+        Vector2 anchor = ClampAnchor(new Vector2((local.x - bounds.xMin) / bounds.width, (local.y - bounds.yMin) / bounds.height), controlId);
         target.anchorMin = anchor; target.anchorMax = anchor; target.anchoredPosition = Vector2.zero;
     }
-    private static Vector2 ClampAnchor(Vector2 anchor) => new Vector2(Mathf.Clamp(anchor.x, 0.11f, 0.89f), Mathf.Clamp(anchor.y, 0.16f, 0.84f));
+    private static Vector2 ClampAnchor(Vector2 anchor, string id)
+    {
+        if (id == "pause")
+            return new Vector2(Mathf.Clamp(anchor.x, 0.05f, 0.95f), Mathf.Clamp(anchor.y, 0.08f, 0.92f));
+        return new Vector2(Mathf.Clamp(anchor.x, 0.11f, 0.89f), Mathf.Clamp(anchor.y, 0.16f, 0.84f));
+    }
     public void ChangeScale(float delta) { if (!editing || target == null) return; scaleFactor = Mathf.Clamp(scaleFactor + delta, 0.65f, 1.5f); target.localScale = Vector3.one * scaleFactor; }
 
     public static void SetSelectedControl(string id)
@@ -75,7 +80,7 @@ public sealed class GameplayControlHandle : MonoBehaviour, IBeginDragHandler, ID
     }
     public static void ResetAll()
     {
-        foreach (string id in new[] { "joystick", "jump" }) { PlayerPrefs.DeleteKey(Key(id, "x")); PlayerPrefs.DeleteKey(Key(id, "y")); PlayerPrefs.DeleteKey(Key(id, "scale")); }
+        foreach (string id in new[] { "joystick", "jump", "pause" }) { PlayerPrefs.DeleteKey(Key(id, "x")); PlayerPrefs.DeleteKey(Key(id, "y")); PlayerPrefs.DeleteKey(Key(id, "scale")); }
         PlayerPrefs.Save();
     }
     private static string Key(string id, string suffix) => "Aether.Controls." + id + "." + suffix;
