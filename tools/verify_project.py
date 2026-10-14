@@ -82,7 +82,7 @@ if bootstrap.exists():
         errors.append("Warning screen must have a non-blocking automatic transition")
     if "button.targetGraphic = plate" not in source:
         errors.append("Menu buttons must use the shaped menu plate as their raycast target")
-    for contract in ("BuildMenuAtmosphere", "ShowControls", "ShowAbout", "ShowSettings", "ToggleMenuMotion", "ToggleTextSize", "ApplyMenuPreferences", "PlayerPrefs.Save()", "FontStyle.Bold", "Mathf.Clamp01(color.a)", "RevealMenuElement", "menuEntrancePlayed"):
+    for contract in ("BuildMenuAtmosphere", "ShowControls", "ShowAbout", "ShowSettings", "ToggleMenuMotion", "ToggleTextSize", "ApplyMenuPreferences", "PlayerPrefs.Save()", "FocusButtonWhenVisible", "EventSystem.current.SetSelectedGameObject", "colors.selectedColor = colors.normalColor", "FontStyle.Bold", "Mathf.Clamp01(color.a)", "RevealMenuElement", "menuEntrancePlayed"):
         if contract not in source:
             errors.append(f"Main menu quality contract missing: {contract}")
     for label in ('MakeButton("شروع بازی"', 'MakeButton("کنترل‌ها"', 'MakeButton("دربارهٔ بازی"', 'MakeButton("تنظیمات"'):
@@ -124,7 +124,7 @@ if reveal_file.exists():
 feedback_file = root / "Assets/Aether/Scripts/Runtime/AetherUIButtonFeedback.cs"
 if feedback_file.exists():
     feedback_source = feedback_file.read_text(encoding="utf-8")
-    for contract in ("IPointerDownHandler", "IPointerUpHandler", "HashSet<int>", "Mathf.Exp", "IsComplete", "MotionEnabled"):
+    for contract in ("IPointerDownHandler", "IPointerUpHandler", "ISelectHandler", "IDeselectHandler", "HashSet<int>", "Mathf.Exp", "IsComplete", "MotionEnabled", "pointerInside || selected"):
         if contract not in feedback_source:
             errors.append(f"Button press feedback missing contract: {contract}")
 
