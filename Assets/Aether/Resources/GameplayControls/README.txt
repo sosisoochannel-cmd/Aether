@@ -1,9 +1,9 @@
-Gameplay control art import point
+Aether Gameplay Control Textures
 
-The runtime expects four independently authored transparent PNG files in this folder:
-- JoystickBase.png
-- JoystickKnob.png
-- Jump.png
-- Pause.png
+Four separate transparent PNG sprites are authored for runtime use:
+- JoystickBase.png — fixed-position movement ring, cyan/blue crystal accents.
+- JoystickKnob.png — independent draggable knob, matching crystal palette.
+- Jump.png — readable jump silhouette with blue/cyan energy accents.
+- Pause.png — high-contrast pause glyph with violet/blue accents.
 
-They are provided in the separate Aether_Gameplay_Control_Art_Pack.zip artifact from the current ChatGPT session. Copy the four PNGs here before Unity runtime visual QA. This README is not a substitute for those images; source checks cannot verify their import or appearance.
+These are original project assets, not a concept-sheet crop. Each PNG has its own Unity TextureImporter metadata and is loaded from Resources/GameplayControls. Keep the base and knob separate so the joystick can move the knob without moving its hit area. The sprites use transparent outer margins so they remain visible over varied scenes.

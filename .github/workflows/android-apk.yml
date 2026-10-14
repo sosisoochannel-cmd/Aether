@@ -1,5 +1,7 @@
 name: Aether Android APK
 on:
+  push:
+    branches: ["foundation/**"]
   workflow_dispatch:
 permissions:
   contents: read

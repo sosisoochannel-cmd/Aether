@@ -25,6 +25,10 @@ required = [
     "docs/MAIN_MENU_REVIEW.md",
     "docs/TOUCH_CONTROLS.md",
     "Assets/Aether/Resources/Fonts/Vazirmatn-Regular.ttf",
+    "Assets/Aether/Resources/GameplayControls/JoystickBase.png",
+    "Assets/Aether/Resources/GameplayControls/JoystickKnob.png",
+    "Assets/Aether/Resources/GameplayControls/Jump.png",
+    "Assets/Aether/Resources/GameplayControls/Pause.png",
     "Assets/Aether/Scripts/Runtime/RtlText.cs",
 ]
 errors = []
@@ -222,4 +226,12 @@ if bootstrap.exists():
     if 'MakeTouchButton("◀"' in gameplay_source or 'MakeTouchButton("▶"' in gameplay_source:
         errors.append("Separate left/right gameplay buttons must be removed in favor of a fixed joystick")
 
-print("Source contracts and normalized hitbox separation passed. Unity compilation, Sprite import, real pixel hit-testing, RTL rendering, and Android builds still require Unity/device QA.")
+for sprite in ("JoystickBase", "JoystickKnob", "Jump", "Pause"):
+    image = root / ("Assets/Aether/Resources/GameplayControls/" + sprite + ".png")
+    if image.exists() and not Path(str(image) + ".meta").is_file():
+        errors.append("Gameplay sprite is missing Unity import metadata: " + image.relative_to(root).as_posix())
+
+if errors:
+    print("\\n".join("ERROR: " + e for e in errors))
+    sys.exit(1)
+print("Source contracts and gameplay texture presence checks passed. Unity compilation and Android/device QA are handled by the Unity build workflow.")
